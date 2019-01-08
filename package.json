@@ -4,10 +4,10 @@
   "main": "dist/start.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-framework listen",
-    "watch": "ts-framework watch",
+    "start": "node ./node_modules/.bin/ts-framework listen",
+    "watch": "node ./node_modules/.bin/ts-framework watch",
     "build": "yarn tsc",
-    "console": "ts-framework console",
+    "console": "node ./node_modules/.bin/ts-framework console",
     "test": "jest --config jest.json"
   },
   "dependencies": {
