@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "class-validator": "^0.9.1",
+    "cpf": "^2.0.1",
     "pjson": "^1.0.9",
     "ts-framework": "nxtep-io/ts-framework#v2.3",
     "ts-framework-common": "nxtep-io/ts-framework-common#2.3.1",
