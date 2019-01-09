@@ -1,4 +1,4 @@
-import { Validate, IsAlphanumeric, ValidatorConstraint, ValidationArguments, ValidatorConstraintInterface, IsEmail, validate, IsBoolean, IsInt } from "class-validator";
+import { Validate, IsEnum, IsAlphanumeric, ValidatorConstraint, ValidationArguments, ValidatorConstraintInterface, IsEmail, validate, IsBoolean, IsInt } from "class-validator";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import * as cpf from "cpf";
 
@@ -53,9 +53,9 @@ export default class User extends BaseEntity {
   @Column({ nullable: true })
   finacialId: string
 
-  @IsBoolean()
-  @Column({ nullable: false, default: false })
-  status: boolean  
+  @IsEnum(UserStatus)
+  @Column("enum", { enum: UserStatus, default: UserStatus.INACTIVE, nullable: false })
+  status: UserStatus
 
   @IsAlphanumeric()
   @Column({ nullable: true })
@@ -67,7 +67,27 @@ export default class User extends BaseEntity {
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  addressComplement: string
+  complement: string
+
+  @IsAlphanumeric()
+  @Column({ nullable: true })
+  postcode: string
+
+  @IsAlphanumeric()
+  @Column({ nullable: true })
+  addressReference: string
+
+  @IsAlphanumeric()
+  @Column({ nullable: true })
+  bankCode: string
+
+  @IsAlphanumeric()
+  @Column({ nullable: true })
+  branch: string
+
+  @IsAlphanumeric()
+  @Column({ nullable: true })
+  account: string
 
   constructor(data: Partial<User>) {
     super();
@@ -87,22 +107,3 @@ export default class User extends BaseEntity {
     return this.findOne({ where: { email } });
   }
 }
-
-/**
- Usuário
-Telefone
-Country Code
-Code
-Number
-Endereço
-Logradouro
-Número
-CEP
-Complemento
-Referência
-Dados bancários para saque (Opcional)
-Nr da Agência
-Nr da Conta
-Código do Banco
-
- */
