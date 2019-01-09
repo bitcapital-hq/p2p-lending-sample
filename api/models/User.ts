@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import {
   Validate,
   IsEnum,
@@ -10,6 +10,7 @@ import {
   IsInt
 } from "class-validator";
 import * as cpf from "cpf";
+import { Proposal } from ".";
 
 export enum UserStatus {
   ACTIVE = "active",
@@ -55,48 +56,54 @@ export default class User extends BaseEntity {
   phoneCountryCode: string;
 
   @IsAlphanumeric()
-  @Column({ nullable: true, type: 'int', unique: true })
+  @Column({ nullable: true, type: 'int' })
   phoneLocalCode: number;
 
   @Validate(IsCPF)
   @Column({ nullable: true })
-  finacialId: string
+  finacialId: string;
 
   @IsEnum(UserStatus)
   @Column("enum", { enum: UserStatus, default: UserStatus.INACTIVE, nullable: false })
-  status: UserStatus
+  status: UserStatus.INACTIVE;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  address: string
+  address: string;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  addressNumber: string
+  addressNumber: string;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  complement: string
+  complement: string;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  postcode: string
+  postcode: string;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  addressReference: string
+  addressReference: string;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  bankCode: string
+  bankCode: string;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  branch: string
+  branch: string;
 
   @IsAlphanumeric()
   @Column({ nullable: true })
-  account: string
+  account: string;
+
+  @OneToMany(type => Proposal, proposal => proposal.owner, { 
+      cascade: [ "insert", "update" ],
+      nullable: true
+  })
+  proposals: Proposal[];
 
   constructor(data: Partial<User>) {
     super();

@@ -15,6 +15,7 @@
     "cpf": "^2.0.1",
     "pjson": "^1.0.9",
     "ts-framework": "nxtep-io/ts-framework#v2.3",
+    "ts-framework-cli": "nxtep-io/ts-framework-cli",
     "ts-framework-common": "nxtep-io/ts-framework-common#2.3.1",
     "ts-framework-sql": "nxtep-io/ts-framework-sql#v2",
     "ts-node": "^7.0.1",

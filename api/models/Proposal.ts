@@ -1,4 +1,4 @@
-import { IsAlphanumeric, validate, IsBoolean, IsInt, IsEnum, IsNotEmpty } from "class-validator";
+import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty } from "class-validator";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { User } from ".";
 
@@ -15,21 +15,34 @@ export default class Proposal extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: number;
 
+  @IsNotEmpty()
   @IsAlphanumeric()
   @Column({ nullable: false, type: 'float' })
   amount: number;
 
+  @IsNotEmpty()
   @IsAlphanumeric()
   @Column({ nullable: false, type: 'float' })
-  interest: number
+  interest: number;
 
+  @IsNotEmpty()
   @IsEnum(ProposalStatus)
   @Column("enum", { enum: ProposalStatus, default: ProposalStatus.PENDING, nullable: false })
-  status: Proposal
+  status: ProposalStatus.PENDING;
 
   @IsNotEmpty()
   @ManyToOne(type => User, owner => owner.id, { onDelete: "CASCADE", nullable: false })
   owner: User;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Column({ nullable: false, type: 'int' })
+  minInstalments: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Column({ nullable: false, type: 'int' })
+  maxInstalments: number;
 
   constructor(data: Partial<User>) {
     super();
@@ -51,10 +64,6 @@ export default class Proposal extends BaseEntity {
 }
 /**
  Proposta de Empréstimo
-Status
-Pendente
-Aberta
-Fechada
 Número mínimo de parcelas
 Número máximo de parcelas
 
