@@ -103,7 +103,7 @@ export default class User extends BaseEntity {
       cascade: [ "insert", "update" ],
       nullable: true
   })
-  proposals: Proposal[];
+  proposals?: Proposal[];
 
   constructor(data: Partial<User>) {
     super();

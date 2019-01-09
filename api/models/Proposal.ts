@@ -44,7 +44,7 @@ export default class Proposal extends BaseEntity {
   @Column({ nullable: false, type: 'int' })
   maxInstalments: number;
 
-  constructor(data: Partial<User>) {
+  constructor(data: Partial<Proposal>) {
     super();
     Object.assign(this, data, {});
   }
@@ -62,12 +62,3 @@ export default class Proposal extends BaseEntity {
     return this.findOne({ where: { id } });
   }
 }
-/**
- Proposta de Empréstimo
-Número mínimo de parcelas
-Número máximo de parcelas
-
-
-Pagamentos
-
- */
