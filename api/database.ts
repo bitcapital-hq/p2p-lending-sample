@@ -1,9 +1,9 @@
 import { EntityDatabase } from 'ts-framework-sql';
 import Config from '../config';
-import * as Models from "./models";
+import { User, Proposal } from "./models";
 
 export default class MainDatabase extends EntityDatabase {
-  protected static ENTITIES = [Models.User, Models.Proposal]
+  protected static ENTITIES = [User, Proposal]
 
   protected static instance: MainDatabase = new MainDatabase();
 

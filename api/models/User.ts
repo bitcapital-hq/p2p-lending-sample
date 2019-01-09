@@ -30,7 +30,7 @@ class IsCPF implements ValidatorConstraintInterface {
 
 @Entity(User.tableName)
 export default class User extends BaseEntity {
-  public static readonly tableName = 'users';
+  public static readonly tableName = "users";
 
   @PrimaryGeneratedColumn("uuid")
   id: number;

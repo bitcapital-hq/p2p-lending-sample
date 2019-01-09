@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class CreateDatabase1547038140838 implements MigrationInterface {
+export class CreateDatabase1547049168702 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`CREATE TYPE "users_status_enum" AS ENUM('active', 'pending', 'inactive')`);
