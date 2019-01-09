@@ -1,5 +1,14 @@
-import { Validate, IsEnum, IsAlphanumeric, ValidatorConstraint, ValidationArguments, ValidatorConstraintInterface, IsEmail, validate, IsBoolean, IsInt } from "class-validator";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Validate,
+  IsEnum,
+  IsAlphanumeric,
+  ValidationArguments,
+  ValidatorConstraintInterface,
+  IsEmail,
+  validate,
+  IsInt
+} from "class-validator";
 import * as cpf from "cpf";
 
 export enum UserStatus {
