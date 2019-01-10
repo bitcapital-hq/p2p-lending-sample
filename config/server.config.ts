@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { Logger } from 'ts-framework-common';
 
 // Prepare server port
