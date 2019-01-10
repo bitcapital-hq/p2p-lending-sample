@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToMany, Timestamp } from "typeorm";
 import {
   Validate,
   IsEnum,
@@ -10,7 +10,7 @@ import {
   IsInt
 } from "class-validator";
 import * as cpf from "cpf";
-import { Proposal } from ".";
+import { Proposal, Payment } from ".";
 
 export enum UserStatus {
   ACTIVE = "active",
@@ -48,7 +48,7 @@ export default class User extends BaseEntity {
   email: string;
 
   @IsInt()
-  @Column({ nullable: true, type: 'int',  unique: true })
+  @Column({ nullable: true, type: "int",  unique: true })
   phoneNumber: number;
   
   @IsAlphanumeric()
@@ -56,7 +56,7 @@ export default class User extends BaseEntity {
   phoneCountryCode: string;
 
   @IsAlphanumeric()
-  @Column({ nullable: true, type: 'int' })
+  @Column({ nullable: true, type: "int" })
   phoneLocalCode: number;
 
   @Validate(IsCPF)
@@ -100,10 +100,41 @@ export default class User extends BaseEntity {
   account: string;
 
   @OneToMany(type => Proposal, proposal => proposal.owner, { 
-      cascade: [ "insert", "update" ],
-      nullable: true
+    cascade: [ "insert", "update" ],
+    onDelete: "SET NULL",
+    nullable: true
   })
   proposals?: Proposal[];
+
+  @OneToMany(type => Proposal, loan => loan.borrower, { 
+    cascade: [ "insert", "update" ],
+    onDelete: "SET NULL",
+    nullable: true
+  })
+  loans?: Proposal[];
+
+  @OneToMany(type => Payment, payment => payment.origin, { 
+    cascade: [ "insert", "update" ],
+    onDelete: "SET NULL",
+    nullable: true
+  })
+  payments?: Payment[];
+
+  @OneToMany(type => Payment, incame => incame.recipient, { 
+    cascade: [ "insert", "update" ],
+    onDelete: "SET NULL",
+    nullable: true
+  })
+  incames?: Payment[];
+
+  @Column({ nullable: false, type: "timestamp", default: new Date() })
+  createdAt: Timestamp;
+  
+  @Column({ nullable: true, type: "timestamp" })
+  updatedAt: Timestamp;
+
+  @Column({ nullable: true, type: "timestamp" })
+  deletedAt: Timestamp;
 
   constructor(data: Partial<User>) {
     super();
@@ -121,5 +152,14 @@ export default class User extends BaseEntity {
    */
   public static async findByEmail(email: string) {
     return this.findOne({ where: { email } });
+  }
+
+  /**
+   * Finds user by its email.
+   * 
+   * @param email The email address
+   */
+  public static async list(query: object) {
+    return this.find({ where: query });
   }
 }

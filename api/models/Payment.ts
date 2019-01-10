@@ -1,49 +1,73 @@
-import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty } from "class-validator";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToOne } from "typeorm";
-import { User } from ".";
+import { IsAlphanumeric, validate, IsInt, IsNumber, IsEnum, IsNotEmpty, IsIn } from "class-validator";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
+import { User,  Proposal } from ".";
+import { userInfo } from "os";
 
-export enum PaymentType {
-  INSTALLMENT = 'instalment',
-  DEPOSIT = 'deposit'
+export enum PaymentStatus {
+  PENDING = "pending",
+  PAID = "paid"
 }
 
 @Entity(Payment.tableName)
 export default class Payment extends BaseEntity {
-  public static readonly tableName = 'payments';
+  public static readonly tableName = "payments";
 
   @PrimaryGeneratedColumn("uuid")
   id: number;
 
   @IsNotEmpty()
-  @IsAlphanumeric()
-  @Column({ nullable: false, type: 'float' })
+  @ManyToOne(type => User, origin => origin.id, {
+    nullable: false,
+    cascade: ["insert", "update"]
+  })
+  origin: User;
+
+  @IsNotEmpty()
+  @ManyToOne(type => User, recipient => recipient.id, {
+    nullable: false,
+    cascade: ["insert", "update"]
+  })
+  recipient: User;
+
+  @IsNotEmpty()
+  @ManyToOne(type => Proposal, proposal => proposal.id, {
+    nullable: false,
+    cascade: ["insert", "update"]
+  })
+  proposal: Proposal;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Column({ nullable: false, type: "float8" })
   amount: number;
 
   @IsNotEmpty()
-  @IsAlphanumeric()
-  @Column({ nullable: false, type: 'float' })
-  interest: number;
-
-  @IsNotEmpty()
-  @IsEnum(ProposalStatus)
-  @Column("enum", { enum: ProposalStatus, default: ProposalStatus.PENDING, nullable: false })
-  status: ProposalStatus.PENDING;
-
-  @IsNotEmpty()
-  @ManyToOne(type => User, owner => owner.id, { onDelete: "CASCADE", nullable: false })
-  owner: User;
+  @IsInt()
+  @Column({ nullable: false })
+  instalment: number;
 
   @IsNotEmpty()
   @IsInt()
-  @Column({ nullable: false, type: 'int' })
-  minInstalments: number;
+  @Column({ nullable: false })
+  totalInstalments: number;
 
-  @IsNotEmpty()
-  @IsInt()
-  @Column({ nullable: false, type: 'int' })
-  maxInstalments: number;
+  @IsEnum(PaymentStatus)
+  @Column("enum", { enum: PaymentStatus, default: PaymentStatus.PENDING, nullable: false })
+  status: PaymentStatus.PENDING;
 
-  constructor(data: Partial<Proposal>) {
+  @Column({ nullable: false, type: "timestamp", default: new Date() })
+  dueTo: Timestamp;
+
+  @Column({ nullable: false, type: "timestamp", default: new Date() })
+  createdAt: Timestamp;
+  
+  @Column({ nullable: true, type: "timestamp" })
+  updatedAt: Timestamp;
+
+  @Column({ nullable: true, type: "timestamp" })
+  deletedAt: Timestamp;
+
+  constructor(data: Partial<Payment>) {
     super();
     Object.assign(this, data, {});
   }
@@ -62,10 +86,6 @@ export default class Payment extends BaseEntity {
   }
 }
 /**
-    Pagamentos
-    Origem
-    Destino
-    Proposta
     Tipo
     Depósito
     Prestação

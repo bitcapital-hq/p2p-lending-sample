@@ -1,5 +1,5 @@
-import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty } from "class-validator";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty, IsNumber } from "class-validator";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
 import { User } from ".";
 
 export enum ProposalStatus {
@@ -10,20 +10,20 @@ export enum ProposalStatus {
 
 @Entity(Proposal.tableName)
 export default class Proposal extends BaseEntity {
-  public static readonly tableName = 'proposals';
+  public static readonly tableName = "proposals";
 
   @PrimaryGeneratedColumn("uuid")
   id: number;
 
   @IsNotEmpty()
   @IsAlphanumeric()
-  @Column({ nullable: false, type: 'float' })
+  @Column({ nullable: false, type: "float" })
   amount: number;
 
   @IsNotEmpty()
-  @IsAlphanumeric()
-  @Column({ nullable: false, type: 'float' })
-  interest: number;
+  @IsNumber()
+  @Column({ nullable: false, type: "float" })
+  monthlyInterest: number;
 
   @IsNotEmpty()
   @IsEnum(ProposalStatus)
@@ -31,18 +31,41 @@ export default class Proposal extends BaseEntity {
   status: ProposalStatus.PENDING;
 
   @IsNotEmpty()
-  @ManyToOne(type => User, owner => owner.id, { onDelete: "CASCADE", nullable: false })
+  @ManyToOne(type => User, owner => owner.id, {
+    nullable: false,
+    cascade: ["insert", "update"]
+  })
   owner: User;
+
+  @ManyToOne(type => User, borrower => borrower.id, {
+    nullable: true,
+    cascade: ["insert", "update"]
+  })
+  borrower: User;
 
   @IsNotEmpty()
   @IsInt()
-  @Column({ nullable: false, type: 'int' })
+  @Column({ nullable: false, type: "int" })
   minInstalments: number;
 
   @IsNotEmpty()
   @IsInt()
-  @Column({ nullable: false, type: 'int' })
+  @Column({ nullable: false, type: "int" })
   maxInstalments: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Column({ nullable: true, type: "int" })
+  finalInstalments: number;
+
+  @Column({ nullable: false, type: "timestamp", default: new Date() })
+  createdAt: Timestamp;
+  
+  @Column({ nullable: true, type: "timestamp" })
+  updatedAt: Timestamp;
+
+  @Column({ nullable: true, type: "timestamp" })
+  deletedAt: Timestamp;
 
   constructor(data: Partial<Proposal>) {
     super();
