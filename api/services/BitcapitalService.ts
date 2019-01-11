@@ -1,28 +1,63 @@
 import Bitcapital, { User, Session, StorageUtil, MemoryStorage } from 'bitcapital-core-sdk';
 
 const credentials = {
-    baseURL: process.env.BITCAPITAL_BASE_URL,
-    clientId: process.env.BITCAPITAL_CLIENT_ID,
-    clientSecret: process.env.BITCAPITAL_CLIENT_SECRET
-}
+  baseURL: process.env.BITCAPITAL_CLIENT_URL,
+  clientId: process.env.BITCAPITAL_CLIENT_ID,
+  clientSecret: process.env.BITCAPITAL_CLIENT_SECRET
+};
 
-const session = new Session({
-    storage: new StorageUtil("session", new MemoryStorage()),
-    http: credentials,
-    oauth: credentials
-});
+const session: Session = new Session({
+  storage: new StorageUtil('session', new MemoryStorage()),
+  http: credentials,
+  oauth: credentials
+})
 
-let bitcapitalClient: Bitcapital;
+class BitcapitalService {
+  public static bitcapital: Bitcapital;
 
-async function initialize() {
-    bitcapitalClient = Bitcapital.initialize({ session, ...credentials });
-    await bitcapitalClient.session().clientCredentials();
-}
+  public static async initialize() {
+    BitcapitalService.bitcapital = Bitcapital.initialize({
+      session,
+      ...credentials
+    });
+    await BitcapitalService.bitcapital.session().clientCredentials();
 
-export async function getBitcapitalAPIClient() {
-    if(!bitcapitalClient) {
-        await initialize();
+    return BitcapitalService.bitcapital;
+  }
+
+  public static async getAPIClient() {
+    if (BitcapitalService.bitcapital) {
+      return BitcapitalService.bitcapital;
     }
 
-    return bitcapitalClient;
-}
+    return BitcapitalService.initialize()
+  }
+};
+
+export default BitcapitalService;
+
+// let bitcapital: Bitcapital;
+
+// async function initialize() {
+//   bitcapital = Bitcapital.initialize({
+//     session,
+//     ...credentials
+//   });
+
+//   await bitcapital.session().clientCredentials();
+//   return bitcapital;
+// }
+
+// export async function getAPIClient() {
+//   return (bitcapital ? bitcapital : await initialize());
+// }
+
+// export async function authenticateUser(person: User): Promise<User> {
+//     const client = await getBitcapitalAPIClient();
+//     const remoteUser = await client.session().password({
+//         username: person.email,
+//         password: "123123"
+//     });
+
+//     return remoteUser;
+// }

@@ -1,0 +1,22 @@
+https://bitcapital-hq.github.io/bitcapital-core-sdk/
+import Bitcapital from 'bitcapital-core-sdk';
+
+// Initialize the session instance to authenticate
+// using the Bitcapital Core OAuth 2.0 provider.
+const bitcapital = Bitcapital.initialize({
+  // Instance URL for REST API calls
+  baseURL: 'https://your-instance.btcore.app',
+  // Credentials for OAuth 2.0 requests
+  clientId: '< YOUR CLIENT_ID HERE >',
+  clientSecret: '< YOUR CLIENT_SECRET HERE >',
+});
+
+try {
+  // Authenticate a user with email and password from Bitcapital Core
+  // If succeeds and available, the credentials will be stored in the 
+  // session instance and in the local storage (for browser environments).
+  const user = await bitcapital.session().password({
+    email: 'user@example.com',
+    password: '12345678',
+  });
+  this documentation refferes only to front end integration, on Node.js you must have a session and an 

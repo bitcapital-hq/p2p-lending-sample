@@ -1,5 +1,5 @@
 import { Controller, Get, BaseRequest, BaseResponse } from 'ts-framework';
-import { getBitcapitalAPIClient } from '../services/BitcapitalService' ;
+import BitcapitalService from '../services/BitcapitalService' ;
 
 @Controller("/users")
 export default class UserController {
@@ -9,8 +9,8 @@ export default class UserController {
      */
     @Get('/')
     static async getUsers(req: BaseRequest, res: BaseResponse ) {
-        console.log(req)
-        let data: object = await getBitcapitalAPIClient();
+        let data: object = await BitcapitalService.getAPIClient();
+        console.log('AFTERAFTERAFTERAFTERAFTERAFTERAFTERAFTERAFTERAFTERAFTERAFTERAFTER')
         return res.success(data);
     }
 };
