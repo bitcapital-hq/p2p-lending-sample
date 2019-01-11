@@ -1,4 +1,6 @@
 import Bitcapital, { User, Session, StorageUtil, MemoryStorage } from 'bitcapital-core-sdk';
+import { userInfo } from 'os';
+import { HttpError, HttpCode } from 'ts-framework';
 
 const credentials = {
   baseURL: process.env.BITCAPITAL_CLIENT_URL,
@@ -20,44 +22,43 @@ class BitcapitalService {
       session,
       ...credentials
     });
-    await BitcapitalService.bitcapital.session().clientCredentials();
 
-    return BitcapitalService.bitcapital;
+    try {
+      await BitcapitalService.bitcapital.session().clientCredentials();
+  
+      return BitcapitalService.bitcapital;
+    } catch(e) {
+      throw new HttpError(e.message, HttpCode.Server.INTERNAL_SERVER_ERROR, {method: 'initialize', file: 'BitcapitalService.ts', line: '31'});
+    }
   }
 
-  public static async getAPIClient() {
+  public static async getAPIClient(): Promise<Bitcapital> {
     if (BitcapitalService.bitcapital) {
       return BitcapitalService.bitcapital;
     }
 
     return BitcapitalService.initialize()
   }
+
+  public static async authenticate(username: string, password: string): Promise<User> {
+    try {
+      let client = await BitcapitalService.getAPIClient();
+      let user = await client.session().password({
+        username,
+        password
+      });
+
+      if (user.role === 'mediator') {
+        console.log('2222222222222222222222222222222222222222222222222222222')
+        throw new HttpError('FORBIDDEN', HttpCode.Client.FORBIDDEN);
+      }
+
+      return user;
+    } catch(e) {
+      console.log(e.message, e.status, '33333333333333333333333333333333333333333333333333333333333')
+      throw new HttpError(e.message, e.status || e.message.replace('Request failed with status code ', '') || HttpCode.Server.INTERNAL_SERVER_ERROR);
+    }
+  }
 };
 
 export default BitcapitalService;
-
-// let bitcapital: Bitcapital;
-
-// async function initialize() {
-//   bitcapital = Bitcapital.initialize({
-//     session,
-//     ...credentials
-//   });
-
-//   await bitcapital.session().clientCredentials();
-//   return bitcapital;
-// }
-
-// export async function getAPIClient() {
-//   return (bitcapital ? bitcapital : await initialize());
-// }
-
-// export async function authenticateUser(person: User): Promise<User> {
-//     const client = await getBitcapitalAPIClient();
-//     const remoteUser = await client.session().password({
-//         username: person.email,
-//         password: "123123"
-//     });
-
-//     return remoteUser;
-// }
