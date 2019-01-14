@@ -1,6 +1,5 @@
 import Bitcapital, { User, Session, StorageUtil, MemoryStorage } from 'bitcapital-core-sdk';
-import { userInfo } from 'os';
-import { HttpError, HttpCode } from 'ts-framework';
+import { BaseError } from "ts-framework-common";
 
 const credentials = {
   baseURL: process.env.BITCAPITAL_CLIENT_URL,
@@ -28,7 +27,7 @@ class BitcapitalService {
   
       return BitcapitalService.bitcapital;
     } catch(e) {
-      throw new HttpError(e.message, HttpCode.Server.INTERNAL_SERVER_ERROR, {method: 'initialize', file: 'BitcapitalService.ts', line: '31'});
+      throw new BaseError(e);
     }
   }
 
@@ -49,14 +48,12 @@ class BitcapitalService {
       });
 
       if (user.role === 'mediator') {
-        console.log('2222222222222222222222222222222222222222222222222222222')
-        throw new HttpError('FORBIDDEN', HttpCode.Client.FORBIDDEN);
+        throw new BaseError('Request failed with status 403');
       }
 
       return user;
     } catch(e) {
-      console.log(e.message, e.status, '33333333333333333333333333333333333333333333333333333333333')
-      throw new HttpError(e.message, e.status || e.message.replace('Request failed with status code ', '') || HttpCode.Server.INTERNAL_SERVER_ERROR);
+      throw new BaseError(e);
     }
   }
 };

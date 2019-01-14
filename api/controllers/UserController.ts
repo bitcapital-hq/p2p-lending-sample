@@ -1,5 +1,6 @@
 import { Controller, Get, BaseRequest, BaseResponse, Post, HttpError, HttpCode } from 'ts-framework';
 import BitcapitalService from '../services/BitcapitalService' ;
+import ParseErrorStatus from '../services/ParseErrorStatus';
 
 @Controller("/users")
 export default class UserController {
@@ -20,7 +21,7 @@ export default class UserController {
       res.success(authenticatedUser);
     } catch(e) {
       let status = e.message.includes('with status')
-      throw new HttpError(e.message, e.status);
+      throw new HttpError(e.message, ParseErrorStatus.parseError(e));
     }
   }
 };
