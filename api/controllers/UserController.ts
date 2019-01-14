@@ -1,6 +1,6 @@
 import { Controller, Get, BaseRequest, BaseResponse, Post, HttpError } from 'ts-framework';
 import BitcapitalService from '../services/BitcapitalService' ;
-import ParseErrorStatus from '../services/ParseErrorStatus';
+import ErrorParser from '../services/ErrorParser';
 import { User } from '../models';
 
 @Controller("/users")
@@ -21,7 +21,8 @@ export default class UserController {
       res.success(authenticatedUser);
     } catch(e) {
       let status = e.message.includes('with status')
-      throw new HttpError(e.message, ParseErrorStatus.parseError(e));
+      let error = new ErrorParser(e);
+      throw new HttpError(error.parseError(), error.parseStatus());
     }
   }
   @Post("/", [])
@@ -40,12 +41,16 @@ export default class UserController {
       let remoteUser = await bitcapital.consumers().create({
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        email: dbUser.email
+        email: dbUser.email,
+        consumer: {
+          taxId: req.body.taxId
+        } as any        
       });
       
       return res.success(remoteUser);
     } catch (e) {
-      throw new HttpError(e.message, ParseErrorStatus.parseError(e));
+      let error = new ErrorParser(e);
+      throw new HttpError(error.parseError(), error.parseStatus());
     }
   }
 };

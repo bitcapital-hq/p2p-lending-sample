@@ -60,7 +60,7 @@ export default class User extends BaseEntity {
   phoneLocalCode: number;
 
   @Validate(IsCPF)
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   taxId: string;
 
   @IsEnum(UserStatus)
