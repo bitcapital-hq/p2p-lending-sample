@@ -56,6 +56,24 @@ class BitcapitalService {
       throw new BaseError(e);
     }
   }
+
+  public static async authenticateMediator(): Promise<User> {
+    try {
+      let apiClient = await BitcapitalService.getAPIClient();
+      let mediator = await apiClient.session().password({
+        username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
+        password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
+      });
+
+      if (mediator.role !== 'mediator') {
+        throw new BaseError('Request failed with status 403');
+      }
+
+      return mediator;
+    } catch(e) {
+      throw new BaseError(e);
+    }
+  }
 };
 
 export default BitcapitalService;

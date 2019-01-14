@@ -1,6 +1,6 @@
 import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty, IsNumber } from "class-validator";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
-import { User } from ".";
+import { User, Payment } from ".";
 
 export enum ProposalStatus {
   PENDING = "pending",
@@ -31,17 +31,20 @@ export default class Proposal extends BaseEntity {
   status: ProposalStatus.PENDING;
 
   @IsNotEmpty()
-  @ManyToOne(type => User, owner => owner.id, {
-    nullable: false,
-    cascade: ["insert", "update"]
-  })
+  @ManyToOne(type => User, owner => owner.proposals)
   owner: User;
 
-  @ManyToOne(type => User, borrower => borrower.id, {
+  @ManyToOne(type => User, borrower => borrower.loans, {
     nullable: true,
     cascade: ["insert", "update"]
   })
   borrower: User;
+
+  @ManyToOne(type => Payment, payment => payment.proposal, {
+    nullable: true,
+    cascade: ["insert", "update"]
+  })
+  payments: Payment[];
 
   @IsNotEmpty()
   @IsInt()

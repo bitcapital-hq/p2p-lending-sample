@@ -61,7 +61,7 @@ export default class User extends BaseEntity {
 
   @Validate(IsCPF)
   @Column({ nullable: true })
-  finacialId: string;
+  taxId: string;
 
   @IsEnum(UserStatus)
   @Column("enum", { enum: UserStatus, default: UserStatus.INACTIVE, nullable: false })
@@ -99,11 +99,7 @@ export default class User extends BaseEntity {
   @Column({ nullable: true })
   account: string;
 
-  @OneToMany(type => Proposal, proposal => proposal.owner, { 
-    cascade: [ "insert", "update" ],
-    onDelete: "SET NULL",
-    nullable: true
-  })
+  @OneToMany(type => Proposal, proposal => proposal.owner)
   proposals?: Proposal[];
 
   @OneToMany(type => Proposal, loan => loan.borrower, { 
