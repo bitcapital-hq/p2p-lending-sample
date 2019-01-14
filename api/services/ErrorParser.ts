@@ -4,7 +4,7 @@ export default class ErrorParser {
   public e: any;
 
   constructor(e: any) {
-    this.e = e.data ? new Error(e.data) : new Error(e);
+    this.e = e.data ? e.data : e;
   }
 
   public parseError() {
