@@ -1,5 +1,6 @@
-import Bitcapital, { User, Session, StorageUtil, MemoryStorage } from 'bitcapital-core-sdk';
-import { BaseError } from "ts-framework-common";
+import Bitcapital, { User, Session, StorageUtil, MemoryStorage, PaginatedArray } from 'bitcapital-core-sdk';
+import { BaseError } from 'ts-framework-common';
+import * as DBUser from '../models/User';
 
 const credentials = {
   baseURL: process.env.BITCAPITAL_CLIENT_URL,
@@ -27,16 +28,16 @@ class BitcapitalService {
   
       return BitcapitalService.bitcapital;
     } catch(e) {
-      throw new BaseError(e);
+      throw e;
     }
   }
 
   public static async getAPIClient(): Promise<Bitcapital> {
     if (BitcapitalService.bitcapital) {
-      return BitcapitalService.bitcapital;
+      return await BitcapitalService.bitcapital;
     }
 
-    return BitcapitalService.initialize()
+    return await BitcapitalService.initialize()
   }
 
   public static async authenticate(username: string, password: string): Promise<User> {
@@ -53,7 +54,7 @@ class BitcapitalService {
 
       return user;
     } catch(e) {
-      throw new BaseError(e);
+      throw e;
     }
   }
 
@@ -71,7 +72,39 @@ class BitcapitalService {
 
       return mediator;
     } catch(e) {
-      throw new BaseError(e);
+      throw e;
+    }
+  }
+
+  public static async createConsumers(user: any): Promise<User> {
+    try {
+      let apiClient = await BitcapitalService.getAPIClient();
+      let remoteUser = await apiClient.consumers().create({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        consumer: {
+          taxId: user.taxId
+        } as any
+      });
+
+      return remoteUser;
+    } catch(e) {
+      throw e;
+    }
+  }
+
+  public static async listConsumers(pagination: number): Promise<User[]> {
+    let limit = +process.env.PAGINATION_LIMIT;
+
+    try {
+      let apiClient = await BitcapitalService.getAPIClient();
+      let list = await apiClient.consumers().findAll({skip: (pagination * limit), limit});
+
+      return list;
+    } catch(e) {
+      console.log(e)
+      throw e;
     }
   }
 };

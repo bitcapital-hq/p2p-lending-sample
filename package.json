@@ -20,6 +20,7 @@
     "ts-framework-cli": "nxtep-io/ts-framework-cli",
     "ts-framework-common": "nxtep-io/ts-framework-common#2.3.1",
     "ts-framework-sql": "nxtep-io/ts-framework-sql#v2",
+    "ts-framework-validation": "nxtep-io/ts-framework-validation#v2",
     "ts-node": "^7.0.1",
     "typeorm": "^0.2.11"
   },

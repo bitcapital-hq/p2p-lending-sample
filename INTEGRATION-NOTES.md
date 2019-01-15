@@ -19,4 +19,8 @@ try {
     email: 'user@example.com',
     password: '12345678',
   });
-  this documentation refferes only to front end integration, on Node.js you must have a session and an 
+  this documentation refferes only to front end integration, on Node.js you must have a session and an storage
+
+In ts-framework-validation documentation of version 2 refrers to Validation.compose but could only find serialCompose and parallelCompose
+
+Sometimes the watch keep using an wrong version of transpiled code insisting on erros related to code no longer on a file. Fix using ts-framework clean
