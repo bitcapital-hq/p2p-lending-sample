@@ -36,6 +36,10 @@ export default class User extends BaseEntity {
   id: number;
 
   @IsAlphanumeric()
+  @Column({ nullable: false, unique: true })
+  bitCapitalId: string;
+
+  @IsAlphanumeric()
   @Column({ nullable: false })
   firstName: string;
 

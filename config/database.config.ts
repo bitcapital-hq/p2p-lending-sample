@@ -7,9 +7,9 @@ export default {
   synchronize: false,
   host: process.env.DATABASE_HOST || "localhost",
   port: process.env.DATABASE_PORT || "5432",
-  username: process.env.DATABASE_USER || "apps",
-  password: process.env.DATABASE_PASSWORD || "bitcapital",
-  database: process.env.DATABASE_NAME || "lending",
+  username: process.env.DATABASE_USER || "postgres",
+  password: process.env.DATABASE_PASSWORD || "",
+  database: process.env.DATABASE_NAME || "postgres",
 
   // IMPORTANT: Path should be relative to root
   entities: ["./api/models/**/*.ts"],

@@ -88,6 +88,8 @@ class BitcapitalService {
         } as any
       });
 
+      remoteUser.credentials
+
       return remoteUser;
     } catch(e) {
       throw e;
@@ -99,11 +101,30 @@ class BitcapitalService {
 
     try {
       let apiClient = await BitcapitalService.getAPIClient();
+      //let test = apiClient.oauth()
+      // test.clientCredentials()
+      //   .then(data => console.log(data, '########################'))
       let list = await apiClient.consumers().findAll({skip: (pagination * limit), limit});
-
       return list;
     } catch(e) {
-      console.log(e)
+      throw e;
+    }
+  }
+
+  public static async getConsumer(id: string): Promise<User[]> {
+    let limit = +process.env.PAGINATION_LIMIT;
+
+    try {
+      let apiClient = await BitcapitalService.getAPIClient();
+      await apiClient.session().password({
+        username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
+        password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
+      });
+      let consumer = apiClient.session().userWebService.findAllByRole({skip: 0, limit: 50}, 'comsumer' as any)
+      // let consumer = await apiClient.consumers().findOne(id);
+
+      return consumer;
+    } catch(e) {
       throw e;
     }
   }

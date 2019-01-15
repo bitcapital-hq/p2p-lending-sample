@@ -11,11 +11,21 @@ export default class UserController {
    * GET /users/:pagination
    * @description List users as consumers
    */
-  @Get("/:pagination")
-  static async getUsers(req: BaseRequest, res: BaseResponse) {
+  // @Get("/:pagination")
+  // static async getUsers(req: BaseRequest, res: BaseResponse) {
+  //   try {
+  //     let consumers = await BitcapitalService.listConsumers(req.params.pagination || 0);
+  //     return res.success(consumers);
+  //   } catch (e) {
+  //     let error = new ErrorParser(e);
+  //     throw new HttpError(error.parseError(), error.parseStatus());
+  //   }
+  // }
+  @Get("/:id")
+  static async getUser(req: BaseRequest, res: BaseResponse) {
     try {
-      let consumers = await BitcapitalService.listConsumers(req.params.pagination || 0);
-      return res.success(consumers);
+      let consumer = await BitcapitalService.getConsumer(req.params.id);
+      return res.success(consumer);
     } catch (e) {
       let error = new ErrorParser(e);
       throw new HttpError(error.parseError(), error.parseStatus());
@@ -56,23 +66,23 @@ export default class UserController {
   static async createUser(req: BaseRequest, res: BaseResponse) {
     try {
       let bitcapital = await BitcapitalService.initialize();
-      //let mediator = await BitcapitalService.authenticateMediator();
 
-      let dbUser = await User.create({
+      let remoteUser = await BitcapitalService.createConsumers({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
         taxId: req.body.taxId
-      }).save();
-  
-      let remoteUser = await BitcapitalService.createConsumers({
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        email: dbUser.email,
-        taxId: req.body.taxId
       });
+  
+      let dbUser = await User.create({
+        bitCapitalId: remoteUser.id,
+        firstName: remoteUser.firstName,
+        lastName: remoteUser.lastName,
+        email: remoteUser.email,
+        taxId: req.body.taxId
+      }).save();
       
-      return res.success(remoteUser);
+      return res.success(dbUser);
     } catch (e) {
       let error = new ErrorParser(e);
       throw new HttpError(error.parseError(), error.parseStatus());
