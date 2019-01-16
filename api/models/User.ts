@@ -18,6 +18,13 @@ export enum UserStatus {
   INACTIVE = "inactive"
 }
 
+export enum UserRole {
+  ADMIN = "admin",
+  AUDIT = "audit",
+  MEDIATOR = "mediator",
+  CONSUMER = "consumer"
+}
+
 class IsCPF implements ValidatorConstraintInterface {
   validate(text: string) {
     return cpf.isValid(text);

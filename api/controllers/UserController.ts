@@ -7,21 +7,31 @@ import ValidatorHelper from '../services/ValidatorHelper';
 
 @Controller("/users")
 export default class UserController {
+  @Get('/test')
+  static async test(req: BaseRequest, res: BaseResponse) {
+    try {
+
+      let users =  await BitcapitalService.test('123456123456')
+      res.success(users)
+    } catch(e) {
+      throw  new HttpError('Error', 500)
+    }
+  }
   /**
    * GET /users/:pagination
    * @description List users as consumers
    */
-  // @Get("/:pagination")
-  // static async getUsers(req: BaseRequest, res: BaseResponse) {
-  //   try {
-  //     let consumers = await BitcapitalService.listConsumers(req.params.pagination || 0);
-  //     return res.success(consumers);
-  //   } catch (e) {
-  //     let error = new ErrorParser(e);
-  //     throw new HttpError(error.parseError(), error.parseStatus());
-  //   }
-  // }
-  @Get("/:id")
+  @Get("/:pagination")
+  static async getUsers(req: BaseRequest, res: BaseResponse) {
+    try {
+      let consumers = await BitcapitalService.listConsumers(req.params.pagination || 0);
+      return res.success(consumers);
+    } catch (e) {
+      let error = new ErrorParser(e);
+      throw new HttpError(error.parseError(), error.parseStatus());
+    }
+  }
+  @Get("/id/:id")
   static async getUser(req: BaseRequest, res: BaseResponse) {
     try {
       let consumer = await BitcapitalService.getConsumer(req.params.id);
@@ -37,11 +47,13 @@ export default class UserController {
    */
   @Post("/authenticate", [
     Validate.serialCompose({
-      username: Params.isValidEmail
+      username: Params.isValidEmail,
+      password: ValidatorHelper.isNotEmpty
     })
   ])
   static async authenticate(req: BaseRequest, res: BaseResponse) {
     try {
+      BitcapitalService.authenticateMediator();
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
       res.success(authenticatedUser);
     } catch(e) {
@@ -65,8 +77,6 @@ export default class UserController {
   ])
   static async createUser(req: BaseRequest, res: BaseResponse) {
     try {
-      let bitcapital = await BitcapitalService.initialize();
-
       let remoteUser = await BitcapitalService.createConsumers({
         firstName: req.body.firstName,
         lastName: req.body.lastName,

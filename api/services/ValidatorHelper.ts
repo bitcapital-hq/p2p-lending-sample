@@ -12,4 +12,8 @@ export default class ValidatorHelper {
   public static async isValidCPF(cpf: string) {
     return CPF.isValid(cpf);
   }
+
+  public static async isNotEmpty(param: string | number | boolean) {
+    return !!param;
+  }
 }

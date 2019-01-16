@@ -1,6 +1,6 @@
 import Bitcapital, { User, Session, StorageUtil, MemoryStorage, PaginatedArray } from 'bitcapital-core-sdk';
 import { BaseError } from 'ts-framework-common';
-import * as DBUser from '../models/User';
+
 
 const credentials = {
   baseURL: process.env.BITCAPITAL_CLIENT_URL,
@@ -25,7 +25,7 @@ class BitcapitalService {
 
     try {
       await BitcapitalService.bitcapital.session().clientCredentials();
-  
+
       return BitcapitalService.bitcapital;
     } catch(e) {
       throw e;
@@ -58,19 +58,16 @@ class BitcapitalService {
     }
   }
 
-  public static async authenticateMediator(): Promise<User> {
+  public static async authenticateMediator(): Promise<Bitcapital> {
     try {
       let apiClient = await BitcapitalService.getAPIClient();
-      let mediator = await apiClient.session().password({
+
+      await apiClient.session().password({
         username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
         password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
       });
 
-      if (mediator.role !== 'mediator') {
-        throw new BaseError('Request failed with status 403');
-      }
-
-      return mediator;
+      return apiClient;
     } catch(e) {
       throw e;
     }
@@ -78,7 +75,7 @@ class BitcapitalService {
 
   public static async createConsumers(user: any): Promise<User> {
     try {
-      let apiClient = await BitcapitalService.getAPIClient();
+      let apiClient = await BitcapitalService.authenticateMediator();
       let remoteUser = await apiClient.consumers().create({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -87,8 +84,6 @@ class BitcapitalService {
           taxId: user.taxId
         } as any
       });
-
-      remoteUser.credentials
 
       return remoteUser;
     } catch(e) {
@@ -101,32 +96,39 @@ class BitcapitalService {
 
     try {
       let apiClient = await BitcapitalService.getAPIClient();
-      //let test = apiClient.oauth()
-      // test.clientCredentials()
-      //   .then(data => console.log(data, '########################'))
-      let list = await apiClient.consumers().findAll({skip: (pagination * limit), limit});
+      await apiClient.session().password({
+        username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
+        password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
+      });
+
+      const list = await apiClient.consumers().findAll({skip: pagination, limit: +process.env.PAGINATION_LIMIT})
       return list;
     } catch(e) {
       throw e;
     }
   }
 
-  public static async getConsumer(id: string): Promise<User[]> {
-    let limit = +process.env.PAGINATION_LIMIT;
-
+  public static async getConsumer(id: string): Promise<User> {
     try {
-      let apiClient = await BitcapitalService.getAPIClient();
+      let apiClient = await BitcapitalService.authenticateMediator();
       await apiClient.session().password({
         username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
         password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
       });
-      let consumer = apiClient.session().userWebService.findAllByRole({skip: 0, limit: 50}, 'comsumer' as any)
-      // let consumer = await apiClient.consumers().findOne(id);
+
+      let consumer = await apiClient.consumers().findOne(id);
 
       return consumer;
     } catch(e) {
       throw e;
     }
+  }
+
+  public static async test(token: string) {
+    let apiClient = await BitcapitalService.getAPIClient()
+    // apiClient.oauth().secret(token, { entity: 'wallet', id: '123123' })
+    let users = apiClient.users()
+    return  users
   }
 };
 
