@@ -1,6 +1,5 @@
 import Bitcapital, { User, Session, StorageUtil, MemoryStorage, Document, ConsumerStatus, Asset } from 'bitcapital-core-sdk';
 import { BaseError } from 'ts-framework-common';
-import { HttpError } from 'ts-framework';
 import { Transaction, Payment } from '../models/schemas';
 
 const credentials = {

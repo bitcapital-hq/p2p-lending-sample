@@ -4,7 +4,8 @@ export default class ErrorParser {
   public e: any;
 
   constructor(e: any) {
-    console.log(e, '----- ERROR PARSER CLASS -----');
+    console.log(e);
+    console.log("----- ERROR PARSER CLASS -----");
     this.e = e.data ? e.data : e;
   }
 
