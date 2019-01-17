@@ -1,6 +1,5 @@
-import Bitcapital, { User, Session, StorageUtil, MemoryStorage, Document } from 'bitcapital-core-sdk';
+import Bitcapital, { User, Session, StorageUtil, MemoryStorage, Document, ConsumerStatus, Asset } from 'bitcapital-core-sdk';
 import { BaseError } from 'ts-framework-common';
-import ErrorParser from './ErrorParser';
 import { HttpError } from 'ts-framework';
 import { Transaction, Payment } from '../models/schemas';
 
@@ -15,18 +14,6 @@ const session: Session = new Session({
   http: credentials,
   oauth: credentials
 })
-
-const enum ConsumerStatus {
-  PENDING_DOCUMENTS = "pending_documents",
-  PENDING_SELFIE = "pending_selfie",
-  PROCESSING = "processing",
-  VERIFIED = "verified",
-  SUSPENDED = "suspended",
-  DELETED = "deleted",
-  INVALID_DOCUMENTS = "invalid_documennts",
-  INVALID_SELFIE = "invalid_selfie",
-  MANUAL_VERIFICATION = "manual_verification"
-}
 
 class BitcapitalService {
   public static bitcapital: Bitcapital;
@@ -76,7 +63,7 @@ class BitcapitalService {
     try {
       let apiClient = await BitcapitalService.getAPIClient();
 
-      await apiClient.session().password({
+      let me = await apiClient.session().password({
         username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
         password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
       });
@@ -94,6 +81,7 @@ class BitcapitalService {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        domain: process.env.BITCAPITAL_CLIENT_DOMAIN as any,
         consumer: {
           userId: null,
           status: ConsumerStatus.PENDING_DOCUMENTS as any,
@@ -101,6 +89,7 @@ class BitcapitalService {
           taxId: user.taxId
         }
       });
+      console.log(remoteUser, 'CONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMER')
 
       return remoteUser;
     } catch(e) {
@@ -159,8 +148,7 @@ class BitcapitalService {
 
       return transactionAsset;
     } catch(e) {
-      let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw e;
     }
   }
 
@@ -175,19 +163,34 @@ class BitcapitalService {
     return paymentOrder;
   }
 
-  public static async test(token: string) {
-    let apiClient = await BitcapitalService.authenticateMediator()
-    // apiClient.oauth().secret(token, { entity: 'wallet', id: '123123' })
+  public static async createAsset(asset: Asset): Promise<Asset>{
     try {
-      let users = apiClient.assets().findAll({})
-      return  users
-    } catch(e) {
-      let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
+      let apiClient = await BitcapitalService.authenticateMediator();
+      let saved = apiClient.assets().create(asset);
+
+      return saved;
+    } catch (e) {
+      throw e;
     }
   }
 
+  public static async test(data) {
+    try {
+      let apiClient = await BitcapitalService.authenticateMediator()
+      let asset = apiClient.assets().emit(data);
 
+      return asset;
+    } catch(e) {     
+      throw e;
+    }
+    // apiClient.oauth().secret(token, { entity: 'wallet', id: '123123' })
+    try {
+      // let users = apiClient.assets().findAll({})
+      // return  users
+    } catch(e) {
+      throw e;
+    }
+  }
 };
 
 export default BitcapitalService;

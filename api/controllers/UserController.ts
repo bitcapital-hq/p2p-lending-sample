@@ -7,14 +7,15 @@ import ValidatorHelper from '../services/ValidatorHelper';
 
 @Controller("/users")
 export default class UserController {
-  @Get('/test')
+  @Post('/test')
   static async test(req: BaseRequest, res: BaseResponse) {
     try {
-
-      let users =  await BitcapitalService.test('123456123456')
+      let users =  await BitcapitalService.test(req.body)
+      
       res.success(users)
     } catch(e) {
-      throw  new HttpError('Error', 500)
+      let error = new ErrorParser(e);
+      throw  new HttpError(error.parseError(), error.parseStatus());
     }
   }
   /**
