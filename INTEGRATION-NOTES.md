@@ -26,3 +26,5 @@ In ts-framework-validation documentation of version 2 refrers to Validation.comp
 Sometimes the watch keep using an wrong version of transpiled code insisting on erros related to code no longer on a file. Fix using ts-framework clean
 
 SDK Bitcapital.consumers().findAll() returns 403 FORBIDDEN
+
+the method Bitcaptal.assets().create() creates assets accessible to diferent domains

@@ -1,6 +1,8 @@
-import Bitcapital, { User, Session, StorageUtil, MemoryStorage, PaginatedArray } from 'bitcapital-core-sdk';
+import Bitcapital, { User, Session, StorageUtil, MemoryStorage, Document } from 'bitcapital-core-sdk';
 import { BaseError } from 'ts-framework-common';
-
+import ErrorParser from './ErrorParser';
+import { HttpError } from 'ts-framework';
+import { Transaction, Payment } from '../models/schemas';
 
 const credentials = {
   baseURL: process.env.BITCAPITAL_CLIENT_URL,
@@ -13,6 +15,18 @@ const session: Session = new Session({
   http: credentials,
   oauth: credentials
 })
+
+const enum ConsumerStatus {
+  PENDING_DOCUMENTS = "pending_documents",
+  PENDING_SELFIE = "pending_selfie",
+  PROCESSING = "processing",
+  VERIFIED = "verified",
+  SUSPENDED = "suspended",
+  DELETED = "deleted",
+  INVALID_DOCUMENTS = "invalid_documennts",
+  INVALID_SELFIE = "invalid_selfie",
+  MANUAL_VERIFICATION = "manual_verification"
+}
 
 class BitcapitalService {
   public static bitcapital: Bitcapital;
@@ -81,11 +95,25 @@ class BitcapitalService {
         lastName: user.lastName,
         email: user.email,
         consumer: {
+          userId: null,
+          status: ConsumerStatus.PENDING_DOCUMENTS as any,
+          isValid: true as any,
           taxId: user.taxId
-        } as any
+        }
       });
 
       return remoteUser;
+    } catch(e) {
+      throw e;
+    }
+  }
+
+  public static async createDocument(id: string, document: Document): Promise<Document> {
+    try {
+      let apiClient = await BitcapitalService.authenticateMediator();
+      let list = await apiClient.consumers().createDocument(id, document);
+
+      return list;
     } catch(e) {
       throw e;
     }
@@ -95,13 +123,9 @@ class BitcapitalService {
     let limit = +process.env.PAGINATION_LIMIT;
 
     try {
-      let apiClient = await BitcapitalService.getAPIClient();
-      await apiClient.session().password({
-        username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
-        password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
-      });
+      let apiClient = await BitcapitalService.authenticateMediator();
 
-      const list = await apiClient.consumers().findAll({skip: pagination, limit: +process.env.PAGINATION_LIMIT})
+      const list = await apiClient.consumers().findAll({skip: pagination, limit})
       return list;
     } catch(e) {
       throw e;
@@ -124,12 +148,46 @@ class BitcapitalService {
     }
   }
 
-  public static async test(token: string) {
-    let apiClient = await BitcapitalService.getAPIClient()
-    // apiClient.oauth().secret(token, { entity: 'wallet', id: '123123' })
-    let users = apiClient.users()
-    return  users
+  public static async deposit(transaction: Transaction) {
+    try {
+      let apiClient = await BitcapitalService.authenticateMediator();
+      let transactionAsset = apiClient.assets().emit({
+        id: transaction.id,
+        amount: transaction.amount,
+        destination: transaction.wallet
+      });
+
+      return transactionAsset;
+    } catch(e) {
+      let error = new ErrorParser(e);
+      throw new HttpError(error.parseError(), error.parseStatus());
+    }
   }
+
+  public static async pay(payment: Payment) {
+    let apiClient = await BitcapitalService.authenticateMediator();
+    let paymentOrder =  await apiClient.payments().pay({
+        source: payment.source,
+        recipients: payment.recipients,
+        asset: payment.asset
+    });
+
+    return paymentOrder;
+  }
+
+  public static async test(token: string) {
+    let apiClient = await BitcapitalService.authenticateMediator()
+    // apiClient.oauth().secret(token, { entity: 'wallet', id: '123123' })
+    try {
+      let users = apiClient.assets().findAll({})
+      return  users
+    } catch(e) {
+      let error = new ErrorParser(e);
+      throw new HttpError(error.parseError(), error.parseStatus());
+    }
+  }
+
+
 };
 
 export default BitcapitalService;
