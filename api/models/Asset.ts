@@ -1,15 +1,12 @@
-import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty, IsNumber, IsUUID } from "class-validator";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
-import { User, Payment } from ".";
+import { IsAlphanumeric, IsNotEmpty, IsUUID } from "class-validator";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity(Asset.tableName)
 export default class Asset extends BaseEntity {
   public static readonly tableName = "entities";
 
-  @IsNotEmpty()
-  @IsUUID()
-  @Column({ nullable: false, primary: true, unique: true })
+  @PrimaryGeneratedColumn("uuid")
   id: number;
 
   @IsNotEmpty()

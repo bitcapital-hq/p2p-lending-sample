@@ -1,6 +1,7 @@
 // Keep config as first import
 import Config from '../config';
 import Server, { ServerOptions } from 'ts-framework';
+import AssetController from './controllers/AssetController';
 import StatusController from './controllers/StatusController';
 import UserController from './controllers/UserController';
 import UptimeService from './services/UptimeService';
@@ -11,7 +12,7 @@ export default class MainServer extends Server {
     super({
       ...Config.server,
       router: {
-        controllers: { StatusController, UserController }
+        controllers: { StatusController, UserController, AssetController }
       },
       children: [
         MainDatabase.getInstance(),

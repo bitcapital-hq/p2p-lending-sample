@@ -1,6 +1,16 @@
-import Bitcapital, { User, Session, StorageUtil, MemoryStorage, Document, ConsumerStatus, Asset } from 'bitcapital-core-sdk';
+import Bitcapital, {
+  Asset,
+  User,
+  Session,
+  StorageUtil,
+  MemoryStorage,
+  Document,
+  ConsumerStatus,
+  AssetEmitRequestSchema,
+  Payment
+} from 'bitcapital-core-sdk';
 import { BaseError } from 'ts-framework-common';
-import { Transaction, Payment } from '../models/schemas';
+import { Transaction } from '../models/schemas';
 
 const credentials = {
   baseURL: process.env.BITCAPITAL_CLIENT_URL,
@@ -151,16 +161,16 @@ class BitcapitalService {
     }
   }
 
-  public static async pay(payment: Payment) {
-    let apiClient = await BitcapitalService.authenticateMediator();
-    let paymentOrder =  await apiClient.payments().pay({
-        source: payment.source,
-        recipients: payment.recipients,
-        asset: payment.asset
-    });
+  // public static async pay(payment: Payment): Promise<Payment> {
+  //   let apiClient = await BitcapitalService.authenticateMediator();
+  //   let paymentOrder =  await apiClient.payments().pay({
+  //       source: payment.source,
+  //       recipients: payment.recipients,
+  //       asset: payment.asset
+  //   });
 
-    return paymentOrder;
-  }
+  //   return paymentOrder;
+  // }
 
   public static async createAsset(asset: Asset): Promise<Asset>{
     try {
@@ -173,10 +183,17 @@ class BitcapitalService {
     }
   }
 
-  public static async test(data) {
+  public static async emitAsset(payment: AssetEmitRequestSchema): Promise<Payment> {
+    let apiClient = await BitcapitalService.authenticateMediator()
+    let newPayment = apiClient.assets().emit(payment);
+
+    return newPayment;
+  }
+
+  public static async test(data: AssetEmitRequestSchema):  Promise<Payment>{
     try {
       let apiClient = await BitcapitalService.authenticateMediator()
-      let asset = apiClient.assets().emit(data);
+      let asset = await apiClient.assets().emit(data);
 
       return asset;
     } catch(e) {     
