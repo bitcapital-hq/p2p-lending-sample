@@ -54,9 +54,13 @@ export default class UserController {
   ])
   static async authenticate(req: BaseRequest, res: BaseResponse) {
     try {
-      BitcapitalService.authenticateMediator();
+      BitcapitalService.getAPIClient();
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
-      res.success(authenticatedUser);
+
+      req.user = authenticatedUser.credentials;
+
+      console.log(req.user, 'req.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.user');
+      res.success({token: authenticatedUser.credentials.accessToken});
     } catch(e) {
       let status = e.message.includes('with status')
       let error = new ErrorParser(e);
@@ -82,6 +86,7 @@ export default class UserController {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
+        password: req.body.password,
         taxId: req.body.taxId
       });
   

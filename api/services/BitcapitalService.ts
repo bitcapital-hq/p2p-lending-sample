@@ -90,15 +90,11 @@ class BitcapitalService {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        domain: process.env.BITCAPITAL_CLIENT_DOMAIN as any,
+        password: user.password,
         consumer: {
-          userId: null,
-          status: ConsumerStatus.PENDING_DOCUMENTS as any,
-          isValid: true as any,
           taxId: user.taxId
-        }
+        } as any
       });
-      console.log(remoteUser, 'CONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMERCONSUMER')
 
       return remoteUser;
     } catch(e) {
@@ -175,9 +171,9 @@ class BitcapitalService {
   public static async createAsset(asset: Asset): Promise<Asset>{
     try {
       let apiClient = await BitcapitalService.authenticateMediator();
-      let saved = apiClient.assets().create(asset);
+      let newAsset = await apiClient.assets().create(asset);
 
-      return saved;
+      return newAsset;
     } catch (e) {
       throw e;
     }

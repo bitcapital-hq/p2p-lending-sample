@@ -47,6 +47,12 @@ export default class AssetController {
     })
   ])
   public static async emitAsset(req: BaseRequest, res: BaseResponse) {
-    let newTransaction = BitcapitalService.emitAsset(req.body);
+    try {
+      let newTransaction = BitcapitalService.emitAsset(req.body);
+
+      res.success(newTransaction);
+    } catch(e) {
+      throw e;
+    }
   }
 }

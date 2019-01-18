@@ -1,23 +1,23 @@
 import * as CPF from 'cpf';
 
 export default class ValidatorHelper {
-  public static async isValidName(name: string): Promise<Boolean> {
+  public static async isValidName(name: string): Promise<boolean> {
     return new RegExp(/^[a-zA-Z\s]*$/).test(name)
   }
 
-  public static async isValidPassword(password: string): Promise<Boolean> {
+  public static async isValidPassword(password: string): Promise<boolean> {
     return new RegExp(/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/).test(password) && password.length > 5;
   }
 
-  public static async isValidCPF(cpf: string): Promise<Boolean> {
+  public static async isValidCPF(cpf: string): Promise<boolean> {
     return CPF.isValid(cpf);
   }
 
-  public static async isNotEmpty(param: string | number | boolean): Promise<Boolean> {
+  public static async isNotEmpty(param: string | number | boolean): Promise<boolean> {
     return !!param;
   }
 
-  public static async isValidMoney(money: string): Promise<Boolean> {
+  public static async isValidMoney(money: string): Promise<boolean> {
     return !isNaN(parseFloat(money));
   }
 }
