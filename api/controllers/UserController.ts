@@ -4,18 +4,38 @@ import BitcapitalService from '../services/BitcapitalService' ;
 import ErrorParser from '../services/ErrorParser';
 import { User } from '../models';
 import ValidatorHelper from '../services/ValidatorHelper';
+import HandleAuth from '../services/HandleAuth';
 
 @Controller("/users")
 export default class UserController {
-  @Post('/test')
+  @Post('/test', [
+    HandleAuth.verify
+  ])
   static async test(req: BaseRequest, res: BaseResponse) {
     try {
-      let users =  await BitcapitalService.test(req.body)
-      
-      res.success(users)
+      let bitcapital =  await BitcapitalService.getBitcapitalByToken(req.user);
+      let test = bitcapital.session().oauthWebService;
+
+      res.success(test);
     } catch(e) {
       let error = new ErrorParser(e);
       throw  new HttpError(error.parseError(), error.parseStatus());
+    }
+  }
+  /**
+   * GET /users/me
+   * @description get user by token
+   */
+  @Get("/me", [
+    HandleAuth.verify
+  ])
+  static async me(req: BaseRequest, res: BaseResponse) {
+    try {
+      let consumer = req.user;
+      return res.success(consumer);
+    } catch (e) {
+      let error = new ErrorParser(e);
+      throw new HttpError(error.parseError(), error.parseStatus());
     }
   }
   /**
@@ -32,7 +52,11 @@ export default class UserController {
       throw new HttpError(error.parseError(), error.parseStatus());
     }
   }
-  @Get("/id/:id")
+  /**
+   * GET /users/:id
+   * @description get user by id
+   */
+  @Get("/:id")
   static async getUser(req: BaseRequest, res: BaseResponse) {
     try {
       let consumer = await BitcapitalService.getConsumer(req.params.id);
@@ -50,22 +74,11 @@ export default class UserController {
     Validate.serialCompose({
       username: Params.isValidEmail,
       password: ValidatorHelper.isNotEmpty
-    })
+    }),
+    HandleAuth.auth
   ])
   static async authenticate(req: BaseRequest, res: BaseResponse) {
-    try {
-      BitcapitalService.getAPIClient();
-      let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
-
-      req.user = authenticatedUser.credentials;
-
-      console.log(req.user, 'req.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.userreq.user');
-      res.success({token: authenticatedUser.credentials.accessToken});
-    } catch(e) {
-      let status = e.message.includes('with status')
-      let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
-    }
+    res.success(req.body);
   }
   /**
    * POST /users

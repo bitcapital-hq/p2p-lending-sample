@@ -5,8 +5,8 @@ import Bitcapital, {
   StorageUtil,
   MemoryStorage,
   Document,
-  ConsumerStatus,
   AssetEmitRequestSchema,
+  UserSchema,
   Payment
 } from 'bitcapital-core-sdk';
 import { BaseError } from 'ts-framework-common';
@@ -57,7 +57,7 @@ class BitcapitalService {
         username,
         password
       });
-
+      
       if (user.role === 'mediator') {
         throw new BaseError('Request failed with status 403');
       }
@@ -71,7 +71,6 @@ class BitcapitalService {
   public static async authenticateMediator(): Promise<Bitcapital> {
     try {
       let apiClient = await BitcapitalService.getAPIClient();
-
       let me = await apiClient.session().password({
         username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
         password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
@@ -129,11 +128,6 @@ class BitcapitalService {
   public static async getConsumer(id: string): Promise<User> {
     try {
       let apiClient = await BitcapitalService.authenticateMediator();
-      await apiClient.session().password({
-        username: process.env.BITCAPITAL_MEDIATOR_EMAIL,
-        password: process.env.BITCAPITAL_MEDIATOR_PASSWORD
-      });
-
       let consumer = await apiClient.consumers().findOne(id);
 
       return consumer;
@@ -186,11 +180,29 @@ class BitcapitalService {
     return newPayment;
   }
 
-  public static async test(data: AssetEmitRequestSchema):  Promise<Payment>{
-    try {
-      let apiClient = await BitcapitalService.authenticateMediator()
-      let asset = await apiClient.assets().emit(data);
+  public static async getBitcapitalByToken(user: User): Promise<Bitcapital> {
+    let credentials = user.credentials;
+    delete user.credentials;
+  
+    let client = await BitcapitalService.getAPIClient();
+    await client.session().register(new User({
+        ...user,
+        credentials
+      } as UserSchema)
+    );
 
+    return client;
+  }
+
+  public static async test(data) {
+    try {
+      let apiClient = await BitcapitalService.getAPIClient();
+      // let asset = await apiClient.oauth().secret(data.token, data.resource);
+      let asset = await apiClient.oauth().secret(data.token, { entity: 'wallet', id: null });
+      let isValid = await asset.isValid();
+
+      if (isValid) {}
+    
       return asset;
     } catch(e) {     
       throw e;
