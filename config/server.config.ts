@@ -1,4 +1,5 @@
 import { Logger } from 'ts-framework-common';
+import { files } from 'pjson';
 
 // Prepare server port
 const port = process.env.PORT as any || 3000;
@@ -12,4 +13,5 @@ export default {
   logger,
   sentry,
   port,
+  request: { multer: {fields: [{name: 'files', maxCount: 2}]} }
 }

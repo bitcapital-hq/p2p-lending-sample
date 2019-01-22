@@ -1,4 +1,4 @@
-import { Controller, Get, BaseRequest, BaseResponse, Post, Put, HttpError } from "ts-framework";
+import { Controller, Get, BaseRequest, BaseResponse, Post, HttpError } from "ts-framework";
 import Validate, { Params } from "ts-framework-validation";
 import BitcapitalService from "../services/BitcapitalService" ;
 import ErrorParser from "../services/ErrorParser";
@@ -6,6 +6,8 @@ import { User } from "../models";
 import ValidatorHelper from "../services/ValidatorHelper";
 import HandleAuth from "../services/HandleAuth";
 import * as responses from "../lib/responses";
+import { DocumentSchema, DocumentType } from 'bitcapital-core-sdk';
+import { isValid } from "cpf";
 
 @Controller("/consumer")
 export default class ConsumerController {
@@ -66,13 +68,30 @@ export default class ConsumerController {
   @Post("/documents", [
     HandleAuth.verify,
     //TODO create image file validator
-    Validate.serialCompose({
-      documents: ValidatorHelper.isNotEmpty
-    })
+    // Validate.serialCompose({
+    //   documents: ValidatorHelper.isNotEmpty
+    // })
   ])
   public static async uploadDocs(req: BaseRequest, res: BaseResponse) {
+    let files = (req as any).files;
+    console.log(files);
+
     try {
-      res.success(responses.HTTP_SUCCESS);
+      let apiClient = await BitcapitalService.getBitcapitalByToken(req.user);
+      let newDocument = await apiClient.consumers().createDocument(req.user.userId, {
+        consumerId: req.user.userId,
+        type: DocumentType.BRL_IDENTITY,
+        front: files[0].originalname,
+        back: files[1].originalname
+      });
+
+      let result = newDocument.isValid();
+      
+      if (result) {
+        return res.success(responses.HTTP_SUCCESS);
+      }
+
+      throw new HttpError('Invalid Document', 400);
     } catch(e) {
       let error = new ErrorParser(e);
 

@@ -27,7 +27,7 @@ export default class HandleAuth {
   }
 
   public static async verify(req: BaseRequest, res: BaseResponse, next: Function) {
-    if (!req.headers || !req.headers.authorization) {
+    if (!req.headers.authorization) {
       throw new HttpError('No authorization headers', 400);
     }
 
