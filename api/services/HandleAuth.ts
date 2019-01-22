@@ -1,18 +1,21 @@
-import BitcapitalService from "./BitcapitalService";
+import { StorageUtil, MemoryStorage } from "bitcapital-core-sdk";
 import { BaseRequest, BaseResponse, HttpError } from "ts-framework";
 import { BaseError } from "ts-framework-common";
+import BitcapitalService from "./BitcapitalService";
 import ErrorParser from "./ErrorParser";
 
 export default class HandleAuth {
+  protected static storage: StorageUtil = new StorageUtil('userSession', new MemoryStorage());
+
   public static async auth(req: BaseRequest, res: BaseResponse, next: Function) {
     try {
       BitcapitalService.getAPIClient();
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
 
-      req.user = authenticatedUser;
+      HandleAuth.storage.put(authenticatedUser.credentials.accessToken, authenticatedUser);
+
       req.body = {
-        token: authenticatedUser.credentials.accessToken,
-        refreshToken: authenticatedUser.credentials.refreshToken
+        token: authenticatedUser.credentials.accessToken
       };
 
       next();
@@ -24,6 +27,10 @@ export default class HandleAuth {
   }
 
   public static async verify(req: BaseRequest, res: BaseResponse, next: Function) {
+    if (!req.headers || !req.headers.authorization) {
+      throw new HttpError('No authorization headers', 400);
+    }
+
     try {
       let token = req.headers.authorization.replace('Bearer ', '');
       let apiClient = await BitcapitalService.getAPIClient();
@@ -32,7 +39,7 @@ export default class HandleAuth {
       let isValid = await user.isValid();
 
       if (isValid) {
-        req.user = user;
+        req.user = await HandleAuth.storage.get(token);
         return next();
       }
 

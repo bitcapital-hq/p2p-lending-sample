@@ -2,6 +2,7 @@
 import Config from '../config';
 import Server, { ServerOptions } from 'ts-framework';
 import AssetController from './controllers/AssetController';
+import ConsumerController from './controllers/ConsumerController';
 import StatusController from './controllers/StatusController';
 import UserController from './controllers/UserController';
 import UptimeService from './services/UptimeService';
@@ -12,7 +13,7 @@ export default class MainServer extends Server {
     super({
       ...Config.server,
       router: {
-        controllers: { StatusController, UserController, AssetController }
+        controllers: { AssetController, ConsumerController, StatusController, UserController }
       },
       children: [
         MainDatabase.getInstance(),
