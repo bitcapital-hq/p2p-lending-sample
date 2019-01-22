@@ -19,7 +19,7 @@ export default class UserController {
       res.success(test);
     } catch(e) {
       let error = new ErrorParser(e);
-      throw  new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
   /**
@@ -35,7 +35,7 @@ export default class UserController {
       return res.success(consumer);
     } catch (e) {
       let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
   /**
@@ -49,7 +49,7 @@ export default class UserController {
       return res.success(consumers);
     } catch (e) {
       let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
   /**
@@ -63,7 +63,7 @@ export default class UserController {
       return res.success(consumer);
     } catch (e) {
       let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
   /**
@@ -114,7 +114,7 @@ export default class UserController {
       return res.success(dbUser);
     } catch (e) {
       let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
 };

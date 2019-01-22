@@ -45,7 +45,7 @@ export default class ConsumerController {
       res.success(responses.HTTP_SUCCESS);
     } catch (e) {
       let error = new ErrorParser(e);
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
   /**
@@ -73,11 +73,12 @@ export default class ConsumerController {
     // })
   ])
   public static async uploadDocs(req: BaseRequest, res: BaseResponse) {
-    let files = (req as any).files;
-    console.log(files);
+    let files = (req as any).files.files;
+    // console.log(req.user); return res.success('ok');
 
     try {
       let apiClient = await BitcapitalService.getBitcapitalByToken(req.user);
+      console.log(req.user); return res.success(req.user);
       let newDocument = await apiClient.consumers().createDocument(req.user.userId, {
         consumerId: req.user.userId,
         type: DocumentType.BRL_IDENTITY,
@@ -95,7 +96,7 @@ export default class ConsumerController {
     } catch(e) {
       let error = new ErrorParser(e);
 
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
 }

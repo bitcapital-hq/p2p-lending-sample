@@ -2,18 +2,22 @@ import { HttpCode } from 'ts-framework';
 
 export default class ErrorParser {
   public e: any;
+  public error;
+  public status;
 
   constructor(e: any) {
     console.log(e);
     console.log("--------------------- ERROR PARSER CLASS ---------------------");
     this.e = e.data ? e.data : e;
+    this.error = this.parseError();
+    this.status = this.parseStatus();
   }
 
-  public parseError() {
+  private parseError(): string {
     return this.e.message;
   }
 
-  public parseStatus() {
+  private parseStatus(): number {
     switch (true) {
       case this.e.status : return this.e.status;
       case this.e.message.includes('400') : return HttpCode.Client.BAD_REQUEST;
