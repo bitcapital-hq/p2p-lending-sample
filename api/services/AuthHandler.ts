@@ -36,9 +36,10 @@ export default class AuthHandler {
       let apiClient = await BitcapitalService.getAPIClient();
       let user = await apiClient.oauth().secret(token, { entity: 'wallet', id: null });
       let isValid = await user.isValid();
-
+      
       if (isValid) {
         req.user = await AuthHandler.storage.get(token);
+console.log(req.user.credentials, 'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK')      
         return next();
       }
 

@@ -182,19 +182,8 @@ class BitcapitalService {
 
   public static async getBitcapitalByToken(user: User): Promise<Bitcapital> {
     try {
-      // let credentials = {
-      //   virtual: user.credentials.virtual,
-      //   accessToken: user.credentials.accessToken,
-      //   refreshToken: user.credentials.refreshToken,
-      //   tokenType: user.credentials.tokenType,
-      //   expiresAt: user.credentials.expiresAt,
-      //   userId: user.credentials.userId,
-      //   scope: user.credentials.scope.toString().split(',')
-      // };
-      // delete user.credentials;
-    
       let client = await BitcapitalService.getAPIClient();
-      await client.session().register(new User(user));
+      await client.session().register(user);
   
       return client;
     } catch(e) {

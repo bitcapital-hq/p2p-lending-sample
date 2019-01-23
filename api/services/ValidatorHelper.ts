@@ -20,4 +20,19 @@ export default class ValidatorHelper {
   public static async isValidMoney(money: string): Promise<boolean> {
     return !isNaN(parseFloat(money));
   }
+
+  public static async isValidCountryCode(code: string): Promise<boolean> {
+    //TODO really validate
+    return true;
+  }
+
+  public static async isValidLocalCode(code: string): Promise<boolean> {
+    //TODO really validate
+    return true;
+  }
+
+  public static async isValid(code: string): Promise<boolean> {
+    //TODO really validate
+    return true;
+  }
 }

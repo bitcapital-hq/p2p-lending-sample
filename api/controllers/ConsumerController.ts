@@ -1,4 +1,4 @@
-import { Controller, Get, BaseRequest, BaseResponse, Post, HttpError } from "ts-framework";
+import { Controller, Get, BaseRequest, BaseResponse, Post, Put, HttpError } from "ts-framework";
 import Validate, { Params } from "ts-framework-validation";
 import BitcapitalService from "../services/BitcapitalService" ;
 import ErrorParser from "../services/ErrorParser";
@@ -8,6 +8,7 @@ import AuthHandler from "../services/AuthHandler";
 import * as responses from "../lib/responses";
 import { DocumentSchema, DocumentType } from 'bitcapital-core-sdk';
 import { isValid } from "cpf";
+import { patch } from "semver";
 
 @Controller("/consumer")
 export default class ConsumerController {
@@ -66,11 +67,7 @@ export default class ConsumerController {
    * POST /consumer/documents
    */
   @Post("/documents", [
-    AuthHandler.verify,
-    //TODO create image file validator
-    // Validate.serialCompose({
-    //   documents: ValidatorHelper.isNotEmpty
-    // })
+    AuthHandler.verify
   ])
   public static async uploadDocs(req: BaseRequest, res: BaseResponse) {
     let { front, back } = (req as any).files;
@@ -110,7 +107,8 @@ export default class ConsumerController {
   ])
   public static async me(req: BaseRequest, res: BaseResponse) {
     try {
-      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);   
+      //do not use req.user to  ensure the assets will be updated
+      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);
       let me = await bitcapital.current();
 
       res.success(responses.HTTP_SUCCESS_DATA(me));
@@ -119,6 +117,74 @@ export default class ConsumerController {
 
       throw new HttpError(error.error, error.status);
     }
-    
+  }
+  /**
+   * GET /consumer/status
+   * @description retrive logged in consumer data
+   */
+  @Get("/home/status", [
+    AuthHandler.verify
+  ])
+  public static async status(req: BaseRequest, res: BaseResponse) {
+    try {
+      //do not use req.user to  ensure the assets will be updated
+      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);
+      let me = await bitcapital.current();
+
+      res.success(responses.HTTP_SUCCESS_DATA(me.status));
+    } catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+  }
+  @Get("/home/assets", [
+    AuthHandler.verify
+  ])
+  public static async assets(req: BaseRequest, res: BaseResponse) {
+    try {
+      //do not use req.user to  ensure the assets will be updated
+      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);
+      let me = await bitcapital.current();
+
+      res.success(responses.HTTP_SUCCESS_DATA(me.wallets));
+    } catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+  }
+  /**
+   * PUT /consumer/complete
+   * @description Complete user registration
+   */
+  @Put("/complete", [
+    AuthHandler.verify,
+    Validate.serialCompose({
+      phoneNumber: Params.isValidPhoneNumber,
+      phoneCountryCode: ValidatorHelper.isValidCountryCode,
+      phoneLocalCode: ValidatorHelper.isValidLocalCode,
+      address: Params.isValidName, 
+      addressNumber: Params.isValidName,
+      // complement: Params.isValidEmail,
+      postcode: ValidatorHelper.isValid,
+      addressReference: ValidatorHelper.isValid,
+      bankCode: ValidatorHelper.isValid,
+      branch: ValidatorHelper.isValid,
+      account: ValidatorHelper.isValid,
+    })
+  ])
+  public static async update(req: BaseRequest, res: BaseResponse) {
+    try {
+      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);
+      await bitcapital.consumers().update(req.user.id, req.body);
+      let user = await User.update({bitCapitalId: req.user.id}, req.body);
+
+      res.success(responses.HTTP_SUCCESS_DATA(user));
+    } catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
   }
 }
