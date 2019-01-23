@@ -53,10 +53,10 @@ export default class UserController {
     }
   }
   /**
-   * GET /users/:id
+   * GET /users/id/:id
    * @description get user by id
    */
-  @Get("/:id")
+  @Get("/id/:id")
   static async getUser(req: BaseRequest, res: BaseResponse) {
     try {
       let consumer = await BitcapitalService.getConsumer(req.params.id);

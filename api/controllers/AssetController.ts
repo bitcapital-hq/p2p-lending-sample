@@ -35,7 +35,7 @@ export default class AssetController {
  
       let error = new ErrorParser(e);
 
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
 

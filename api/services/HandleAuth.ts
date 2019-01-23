@@ -22,7 +22,7 @@ export default class HandleAuth {
     } catch(e) {
       let error = new ErrorParser(e);
 
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
 
@@ -47,7 +47,7 @@ export default class HandleAuth {
     } catch(e) {
       let error = new ErrorParser(e);
 
-      throw new HttpError(error.parseError(), error.parseStatus());
+      throw new HttpError(error.error, error.status);
     }
   }
 }

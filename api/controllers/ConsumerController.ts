@@ -78,7 +78,7 @@ export default class ConsumerController {
 
     try {
       let apiClient = await BitcapitalService.getBitcapitalByToken(req.user);
-      console.log(req.user); return res.success(req.user);
+      //console.log(req.user); return res.success(req.user);
       let newDocument = await apiClient.consumers().createDocument(req.user.userId, {
         consumerId: req.user.userId,
         type: DocumentType.BRL_IDENTITY,
@@ -98,5 +98,26 @@ export default class ConsumerController {
 
       throw new HttpError(error.error, error.status);
     }
+  }
+  /**
+   * GET /consumer/home
+   * @description retrive logged in consumer data
+   */
+  @Get("/home", [
+    HandleAuth.verify
+  ])
+  public static async me(req: BaseRequest, res: BaseResponse) {
+    try {
+      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);
+console.log(req.user, 'useruseruseruseruseruseruseruseruseruseruseruseruseruseruseruseruseruser')      
+      let me = await bitcapital.current();
+
+      res.success(responses.HTTP_SUCCESS_DATA(me));
+    } catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+    
   }
 }

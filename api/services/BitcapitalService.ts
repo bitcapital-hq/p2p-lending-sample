@@ -181,17 +181,21 @@ class BitcapitalService {
   }
 
   public static async getBitcapitalByToken(user: User): Promise<Bitcapital> {
-    let credentials = user.credentials;
-    delete user.credentials;
+    try {
+      let credentials = user.credentials;
+      delete user.credentials;
+    
+      let client = await BitcapitalService.getAPIClient();
+      await client.session().register(new User({
+          ...user,
+          credentials
+        } as UserSchema)
+      );
   
-    let client = await BitcapitalService.getAPIClient();
-    await client.session().register(new User({
-        ...user,
-        credentials
-      } as UserSchema)
-    );
-
-    return client;
+      return client;
+    } catch(e) {
+      throw e;
+    }
   }
 
   public static async test(data) {
