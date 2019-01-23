@@ -4,7 +4,7 @@ import BitcapitalService from "../services/BitcapitalService" ;
 import ErrorParser from "../services/ErrorParser";
 import { User } from "../models";
 import ValidatorHelper from "../services/ValidatorHelper";
-import HandleAuth from "../services/HandleAuth";
+import AuthHandler from "../services/AuthHandler";
 import * as responses from "../lib/responses";
 import { DocumentSchema, DocumentType } from 'bitcapital-core-sdk';
 import { isValid } from "cpf";
@@ -57,7 +57,7 @@ export default class ConsumerController {
       username: Params.isValidEmail,
       password: ValidatorHelper.isNotEmpty
     }),
-    HandleAuth.auth
+    AuthHandler.auth
   ])
   public static async authenticate(req: BaseRequest, res: BaseResponse) {
     res.success(responses.HTTP_SUCCESS_DATA(req.body));
@@ -66,29 +66,31 @@ export default class ConsumerController {
    * POST /consumer/documents
    */
   @Post("/documents", [
-    HandleAuth.verify,
+    AuthHandler.verify,
     //TODO create image file validator
     // Validate.serialCompose({
     //   documents: ValidatorHelper.isNotEmpty
     // })
   ])
   public static async uploadDocs(req: BaseRequest, res: BaseResponse) {
-    let files = (req as any).files.files;
-    // console.log(req.user); return res.success('ok');
+    let { front, back } = (req as any).files;
+    // console.log(front[0]); return res.success('ok');
 
     try {
+      // console.log(req.user.credentials); return res.success('OK');
       let apiClient = await BitcapitalService.getBitcapitalByToken(req.user);
-      //console.log(req.user); return res.success(req.user);
-      let newDocument = await apiClient.consumers().createDocument(req.user.userId, {
-        consumerId: req.user.userId,
+      let newDocument = await apiClient.consumers().createDocument(req.user.id, {
+        consumerId: req.user.id,
         type: DocumentType.BRL_IDENTITY,
-        front: files[0].originalname,
-        back: files[1].originalname
+        front: front[0].originalname,
+        back: back[0].originalname
       });
 
       let result = newDocument.isValid();
       
       if (result) {
+        await apiClient.consumers().uploadDocumentPicture(newDocument.id, DocumentType.BRL_IDENTITY, 'front', front[0]);
+        await apiClient.consumers().uploadDocumentPicture(newDocument.id, DocumentType.BRL_IDENTITY, 'back', back[0]);
         return res.success(responses.HTTP_SUCCESS);
       }
 
@@ -104,12 +106,11 @@ export default class ConsumerController {
    * @description retrive logged in consumer data
    */
   @Get("/home", [
-    HandleAuth.verify
+    AuthHandler.verify
   ])
   public static async me(req: BaseRequest, res: BaseResponse) {
     try {
-      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);
-console.log(req.user, 'useruseruseruseruseruseruseruseruseruseruseruseruseruseruseruseruseruser')      
+      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);   
       let me = await bitcapital.current();
 
       res.success(responses.HTTP_SUCCESS_DATA(me));

@@ -28,3 +28,7 @@ Sometimes the watch keep using an wrong version of transpiled code insisting on 
 SDK Bitcapital.consumers().findAll() returns 403 FORBIDDEN
 
 the method Bitcaptal.assets().create() creates assets accessible to diferent domains
+
+I could not find any documentation on using authentication with the bearer token
+
+Memory storage needs a memory DB suort, developing using SDK auth can be exausting due to mandatory re-login every time the app reloads due to file change

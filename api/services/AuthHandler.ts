@@ -4,7 +4,7 @@ import { BaseError } from "ts-framework-common";
 import BitcapitalService from "./BitcapitalService";
 import ErrorParser from "./ErrorParser";
 
-export default class HandleAuth {
+export default class AuthHandler {
   protected static storage: StorageUtil = new StorageUtil('userSession', new MemoryStorage());
 
   public static async auth(req: BaseRequest, res: BaseResponse, next: Function) {
@@ -12,7 +12,7 @@ export default class HandleAuth {
       BitcapitalService.getAPIClient();
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
 
-      HandleAuth.storage.put(authenticatedUser.credentials.accessToken, authenticatedUser);
+      AuthHandler.storage.put(authenticatedUser.credentials.accessToken, authenticatedUser);
 
       req.body = {
         token: authenticatedUser.credentials.accessToken
@@ -34,12 +34,11 @@ export default class HandleAuth {
     try {
       let token = req.headers.authorization.replace('Bearer ', '');
       let apiClient = await BitcapitalService.getAPIClient();
-      let user = await apiClient.oauth()
-        .secret(token, { entity: 'wallet', id: null });
+      let user = await apiClient.oauth().secret(token, { entity: 'wallet', id: null });
       let isValid = await user.isValid();
 
       if (isValid) {
-        req.user = await HandleAuth.storage.get(token);
+        req.user = await AuthHandler.storage.get(token);
         return next();
       }
 

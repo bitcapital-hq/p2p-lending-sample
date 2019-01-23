@@ -4,12 +4,12 @@ import BitcapitalService from '../services/BitcapitalService' ;
 import ErrorParser from '../services/ErrorParser';
 import { User } from '../models';
 import ValidatorHelper from '../services/ValidatorHelper';
-import HandleAuth from '../services/HandleAuth';
+import AuthHandler from '../services/AuthHandler';
 
 @Controller("/users")
 export default class UserController {
   @Post('/test', [
-    HandleAuth.verify
+    AuthHandler.verify
   ])
   static async test(req: BaseRequest, res: BaseResponse) {
     try {
@@ -27,7 +27,7 @@ export default class UserController {
    * @description get user by token
    */
   @Get("/me", [
-    HandleAuth.verify
+    AuthHandler.verify
   ])
   static async me(req: BaseRequest, res: BaseResponse) {
     try {
@@ -75,7 +75,7 @@ export default class UserController {
       username: Params.isValidEmail,
       password: ValidatorHelper.isNotEmpty
     }),
-    HandleAuth.auth
+    AuthHandler.auth
   ])
   static async authenticate(req: BaseRequest, res: BaseResponse) {
     res.success(req.body);

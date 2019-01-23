@@ -13,5 +13,5 @@ export default {
   logger,
   sentry,
   port,
-  request: { multer: {fields: [{name: 'files', maxCount: 2}]} }
+  request: { multer: {fields: [{name: 'front', maxCount: 1}, {name: 'back', maxCount: 1}]} }
 }
