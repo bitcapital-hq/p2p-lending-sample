@@ -4,9 +4,7 @@ import Validate from 'ts-framework-validation';
 import ValidatorHelper from '../services/ValidatorHelper';
 import { Asset } from '../models';
 import ErrorParser from '../services/ErrorParser';
-/*code: string;
-name?: string;
-wallet?: Wallet; */
+import * as responses from '../lib/responses';
 
 @Controller("/assets")
 export default class AssetController {
@@ -38,19 +36,18 @@ export default class AssetController {
       throw new HttpError(error.error, error.status);
     }
   }
-
   @Post("/emit", [
     Validate.serialCompose({
       id: ValidatorHelper.isNotEmpty,
-      amout: ValidatorHelper.isValidMoney,
+      amount: ValidatorHelper.isValidMoney,
       destination: ValidatorHelper.isNotEmpty
     })
   ])
   public static async emitAsset(req: BaseRequest, res: BaseResponse) {
     try {
-      let newTransaction = BitcapitalService.emitAsset(req.body);
+      let newTransaction = await BitcapitalService.emitAsset(req.body);
 
-      res.success(newTransaction);
+      res.success(responses.HTTP_SUCCESS_DATA(newTransaction));
     } catch(e) {
       throw e;
     }

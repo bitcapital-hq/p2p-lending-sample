@@ -32,3 +32,12 @@ the method Bitcaptal.assets().create() creates assets accessible to diferent dom
 I could not find any documentation on using authentication with the bearer token
 
 Memory storage needs a memory DB suort, developing using SDK auth can be exausting due to mandatory re-login every time the app reloads due to file change
+
+The SDK method bitcapital.wallets().findWalletTransactions(<walletId>, <pagination>) return the follwoing error when authenticated as cosumer
+{
+    "status": 403,
+    "message": "[403] [403] Forbidden (stackId: 0af5a2ab-ccd9-493d-8fe8-f26d01995b79) (stackId: 9643ac05-cb72-4005-895f-23d406ec1cd6)",
+    "stackId": "9643ac05-cb72-4005-895f-23d406ec1cd6",
+    "details": {},
+    "stack": "HttpError: [403] [403] Forbidden (stackId: 0af5a2ab-ccd9-493d-8fe8-f26d01995b79) (stackId: 9643ac05-cb72-4005-895f-23d406ec1cd6)\n    at Function.<anonymous> (/home/desoares/Projects/p2p-lending/api/controllers/ConsumerController.ts:207:23)\n    at Generator.throw (<anonymous>)\n    at rejected (/home/desoares/Projects/p2p-lending/api/controllers/ConsumerController.ts:14:65)"
+}

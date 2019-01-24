@@ -1,14 +1,12 @@
+import { DocumentType } from 'bitcapital-core-sdk';
 import { Controller, Get, BaseRequest, BaseResponse, Post, Put, HttpError } from "ts-framework";
 import Validate, { Params } from "ts-framework-validation";
 import BitcapitalService from "../services/BitcapitalService" ;
 import ErrorParser from "../services/ErrorParser";
-import { User } from "../models";
+import { User, Proposal, ProposalStatus } from "../models";
 import ValidatorHelper from "../services/ValidatorHelper";
 import AuthHandler from "../services/AuthHandler";
 import * as responses from "../lib/responses";
-import { DocumentSchema, DocumentType } from 'bitcapital-core-sdk';
-import { isValid } from "cpf";
-import { patch } from "semver";
 
 @Controller("/consumer")
 export default class ConsumerController {
@@ -187,4 +185,72 @@ export default class ConsumerController {
       throw new HttpError(error.error, error.status);
     }
   }
-}
+  /**
+   * GET /consumer/balance
+   * @description Geth consumer account balance
+   */
+  @Get("/balance", [
+    AuthHandler.verify
+  ])
+  public static async getBalance(req: BaseRequest, res: BaseResponse) {
+    try {
+      let bitcapital = await BitcapitalService.getBitcapitalByToken(req.user);
+      let wallet = await bitcapital.wallets().findOne(req.user.wallets[0].id);
+      let baseBalance = wallet.balances.filter(b => b.asset_code === process.env.LOCAL_ASSET_CODE);
+      let balance = baseBalance.length ? baseBalance : {
+        "balance": "0.0000000",
+        "limit": "922337203685.4775807",
+        "buying_liabilities": "0.0000000",
+        "selling_liabilities": "0.0000000",
+        "asset_type": "credit_alphanum4",
+        "asset_code": "BRHD",
+        "asset_issuer": "GB77IHDH2Z2DCYZ42CTW4VPGS2XN7MW6EUHXF4JGPRE2FQQJMPNZP253"
+      };
+
+      res.success(responses.HTTP_SUCCESS_DATA(balance));
+    }  catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+  }
+  /**
+   * GET /consumer/blockchainStatement
+   * @description Get consumer blockchain statement
+   */
+  @Get("/blockchainStatement/:skip", [
+    AuthHandler.verify
+  ])
+  public static async blockchain(req: BaseRequest, res: BaseResponse) {
+    try {
+
+      let bitcapital = await BitcapitalService.authenticateMediator();
+      let statement = await bitcapital.wallets()
+        .findWalletTransactions(req.user.wallets[0].id, {limit: +process.env.PAGINATION_LIMIT, skip: +req.params.skip});
+      
+      res.success(responses.HTTP_SUCCESS_DATA(statement));
+    } catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+  }
+  /**
+   * GET /consumer/lendingStatement
+   * @description Get consumer lending statement
+   */
+  @Get("/lendingStatement/:skip", [
+    AuthHandler.verify
+  ])
+  public static async lending(req: BaseRequest, res: BaseResponse) {
+    try {
+      let lendings = Proposal.find({owner: req.user.BDId, status: ProposalStatus.PENDING});
+
+      
+    } catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+  }
+}//https://github.com/bitcapital-hq/bitcapital-core/blob/master/api/jobs/RootDomainJob.ts

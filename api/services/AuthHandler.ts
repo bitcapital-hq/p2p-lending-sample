@@ -14,9 +14,7 @@ export default class AuthHandler {
 
       AuthHandler.storage.put(authenticatedUser.credentials.accessToken, authenticatedUser);
 
-      req.body = {
-        token: authenticatedUser.credentials.accessToken
-      };
+      req.body = { token: authenticatedUser.credentials.accessToken };
 
       next();
     } catch(e) {
@@ -39,7 +37,7 @@ export default class AuthHandler {
       
       if (isValid) {
         req.user = await AuthHandler.storage.get(token);
-console.log(req.user.credentials, 'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK')      
+
         return next();
       }
 
