@@ -2,6 +2,7 @@ import { StorageUtil, MemoryStorage } from "bitcapital-core-sdk";
 import { BaseRequest, BaseResponse, HttpError } from "ts-framework";
 import { BaseError } from "ts-framework-common";
 import BitcapitalService from "./BitcapitalService";
+import { User } from "../models";
 import ErrorParser from "./ErrorParser";
 
 export default class AuthHandler {
@@ -11,8 +12,13 @@ export default class AuthHandler {
     try {
       BitcapitalService.getAPIClient();
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
+      let dbUser = User.find({bitCapitalId: authenticatedUser.id});
+      let sessionUser = {
+        ...authenticatedUser,
+        DBId: dbUser[0].id
+      }
 
-      AuthHandler.storage.put(authenticatedUser.credentials.accessToken, authenticatedUser);
+      AuthHandler.storage.put(authenticatedUser.credentials.accessToken, sessionUser);
 
       req.body = { token: authenticatedUser.credentials.accessToken };
 
