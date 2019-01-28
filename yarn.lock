@@ -958,6 +958,11 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
+calcudate@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/calcudate/-/calcudate-2.0.0.tgz#683786f0ed1c9787ce01dc4df4786bef9070bb01"
+  integrity sha1-aDeG8O0cl4fOAdxN9Hhr75BwuwE=
+
 call-me-maybe@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/call-me-maybe/-/call-me-maybe-1.0.1.tgz#26d208ea89e37b5cbde60250a15f031c16a4d66b"

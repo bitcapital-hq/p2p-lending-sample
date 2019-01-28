@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "bitcapital-core-sdk": "bitcapital-hq/bitcapital-core-sdk",
+    "calcudate": "^2.0.0",
     "class-validator": "^0.9.1",
     "cpf": "^2.0.1",
     "dotenv": "^6.2.0",

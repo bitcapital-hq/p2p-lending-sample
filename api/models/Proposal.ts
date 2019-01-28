@@ -1,6 +1,9 @@
 import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty, IsNumber } from "class-validator";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp, AfterUpdate, BeforeUpdate } from "typeorm";
 import { User, Payment } from ".";
+import Helper from "../lib/Helpers";
+import * as date from "calcudate";
+import Helpers from "../lib/Helpers";
 
 export enum ProposalStatus {
   PENDING = "pending",
@@ -74,6 +77,39 @@ export default class Proposal extends BaseEntity {
 
   @Column({ nullable: true, type: "timestamp" })
   deletedAt: Timestamp;
+
+  @BeforeUpdate()
+  verifyInstalments() {
+    if (this.finalInstalments && (this.finalInstalments < this.minInstalments || this.finalInstalments > this.maxInstalments)) {
+      throw new Error(`Total instalments must be between ${this.minInstalments} and ${this.maxInstalments}.`);
+    }
+
+    if (this.finalInstalments && !this.finalAmount) {
+      this.finalAmount = this.amount + Helpers.totalInterest(this.monthlyInterest, this.amount, this.finalInstalments);
+    }
+  }
+
+  @AfterUpdate()
+  createPayments() {
+    if (this.finalAmount && this.payments.length !== this.finalAmount) {
+      const payments = [];
+      const sigleAmount = this.finalAmount / this.finalInstalments;
+
+      for (let i = 0; i < this.finalAmount; i++) {
+        let payment = new  Payment({
+          proposal: this,
+          origin: this.borrower,
+          recipient: this.owner,
+          dueTo: date.add().months(i + 1) as any,
+          amount: sigleAmount
+        });
+
+        payments.push(payment);
+      }
+
+      Payment.insert(payments);
+    }    
+  }
 
   constructor(data: Partial<Proposal>) {
     super();
