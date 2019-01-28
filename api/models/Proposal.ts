@@ -61,6 +61,11 @@ export default class Proposal extends BaseEntity {
   @Column({ nullable: true, type: "int" })
   finalInstalments: number;
 
+  @IsNotEmpty()
+  @IsInt()
+  @Column({ nullable: true, type: "float" })
+  finalAmount: number;
+
   @Column({ nullable: false, type: "timestamp", default: new Date() })
   createdAt: Timestamp;
   

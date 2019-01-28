@@ -1,10 +1,10 @@
-import { Controller, Get, BaseRequest, BaseResponse, Post, HttpError } from 'ts-framework';
-import BitcapitalService from '../services/BitcapitalService';
-import Validate from 'ts-framework-validation';
-import ValidatorHelper from '../services/ValidatorHelper';
-import { Asset } from '../models';
-import ErrorParser from '../services/ErrorParser';
-import * as responses from '../lib/responses';
+import { Controller, Get, BaseRequest, BaseResponse, Post, HttpError } from "ts-framework";
+import BitcapitalService from "../services/BitcapitalService";
+import Validate from "ts-framework-validation";
+import ValidatorHelper from "../services/ValidatorHelper";
+import { Asset } from "../models";
+import ErrorParser from "../services/ErrorParser";
+import * as responses from "../lib/responses";
 
 @Controller("/assets")
 export default class AssetController {
