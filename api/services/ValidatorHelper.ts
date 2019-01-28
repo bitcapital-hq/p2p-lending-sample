@@ -35,4 +35,8 @@ export default class ValidatorHelper {
     //TODO really validate
     return true;
   }
+
+  public static async isValidInt(amount: string): Promise<boolean> {
+    return new RegExp(/^[0-9]+$/).test(amount);
+  }
 }
