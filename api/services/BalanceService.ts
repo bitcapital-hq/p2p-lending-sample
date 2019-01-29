@@ -2,6 +2,7 @@ import { Wallet } from "bitcapital-core-sdk";
 import BitcapitalService from "./BitcapitalService";
 import { Proposal, ProposalStatus }  from "../models";
 import { SessionUser } from "../models/schemas";
+import { User } from "../models";
 
 export default class GetUserBalance {
   private static async getMainBalance(wallets: Wallet[]): Promise<number> {
@@ -27,6 +28,25 @@ export default class GetUserBalance {
       let mainBalance = await GetUserBalance.getMainBalance(wallets);
       let proposals = await Proposal.find({
         owner: user.DBId,
+        status: ProposalStatus.OPEN
+      } as any);
+      let commitedBalance = proposals.map(p => p.amount).reduce((a, b) => a + b);
+
+      return mainBalance - commitedBalance;
+    } catch(e) {
+      throw e;
+    }
+  }
+
+  public static async getLendableBalanceById(id: string) {
+    try {
+console.log(id, 'IDIDIDIDIDIDIDIDIDIIDIDIDIDIDIDIDIDIDIDIIDIDIDIDIDIDIDIDIDIDIIDIDIDIDIDIDIDIDIDIDIID')
+      let user = await User.findByBitCapitalId(id);
+      let bitcapital = await BitcapitalService.authenticateMediator();
+      let wallets = await bitcapital.consumers().findWalletsById(user.bitCapitalId);
+      let mainBalance = await GetUserBalance.getMainBalance(wallets);
+      let proposals = await Proposal.find({
+        owner: id,
         status: ProposalStatus.OPEN
       } as any);
       let commitedBalance = proposals.map(p => p.amount).reduce((a, b) => a + b);

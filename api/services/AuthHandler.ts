@@ -10,12 +10,11 @@ export default class AuthHandler {
 
   public static async auth(req: BaseRequest, res: BaseResponse, next: Function) {
     try {
-      BitcapitalService.getAPIClient();
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
-      let dbUser = User.find({bitCapitalId: authenticatedUser.id});
+      let dbUser = await User.findByBitCapitalId(authenticatedUser.id);
       let sessionUser = {
         ...authenticatedUser,
-        DBId: dbUser[0].id
+        DBId: dbUser.id
       }
 
       AuthHandler.storage.put(authenticatedUser.credentials.accessToken, sessionUser);

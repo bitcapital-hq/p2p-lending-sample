@@ -1,11 +1,10 @@
 import { Controller, BaseRequest, BaseResponse, Post, HttpError, Put, HttpCode } from "ts-framework";
 import Validate from "ts-framework-validation";
 import ValidatorHelper from "../services/ValidatorHelper";
-import { Proposal, Payment, PaymentStatus } from "../models";
+import { Proposal, Payment, PaymentStatus, User } from "../models";
 import ErrorParser from "../services/ErrorParser";
 import * as responses from "../lib/responses";
 import AuthHandler from "../services/AuthHandler";
-import BalanceService from "../services/BalanceService";
 import Helpers from "../lib/Helpers";
 
 @Controller("/proposals")
@@ -25,13 +24,9 @@ export default class ProposalController {
   ])
   public static async createProposal(req: BaseRequest, res: BaseResponse) {
     try {
-      let lendable = await BalanceService.getLendableBalance(req.user);
-      if (lendable < req.body.amount) {
-        throw new HttpError('Insufitient funds to create proposal', HttpCode.Client.FORBIDDEN);
-      }
-
+      let user = await User.findById(req.user.DBId);
       let proposal = await Proposal.create({
-        owner: req.user.DBId,
+        owner: user,
         amount: +req.body.amout,
         monthlyInterest: +req.body.monthlyInterest,
         minInstalments: +req.body.minInstalments,

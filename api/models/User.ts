@@ -151,7 +151,6 @@ export default class User extends BaseEntity {
   public async validate() {
     return validate(this);
   }
-
   /**
    * Finds user by its email.
    * 
@@ -160,7 +159,20 @@ export default class User extends BaseEntity {
   public static async findByEmail(email: string) {
     return this.findOne({ where: { email } });
   }
-
+  /**
+   * Find user by bitCapitalId
+   * @param bitCapitalId
+   */
+  public static async findByBitCapitalId(bitCapitalId: string) {
+    return this.findOne({ where: { bitCapitalId } })
+  }
+  /**
+   * Find user by bitCapitalId
+   * @param bitCapitalId
+   */
+  public static async findById(id: string) {
+    return this.findOne({ where: { id } })
+  }
   /**
    * Finds user by its email.
    * 

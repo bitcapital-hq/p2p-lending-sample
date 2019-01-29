@@ -9,7 +9,7 @@ import * as responses from "../lib/responses";
 @Controller("/assets")
 export default class AssetController {
   /**
-   * POST /
+   * POST /assets
    * @description Create a new asset
    */
   @Post("/", [
@@ -36,6 +36,10 @@ export default class AssetController {
       throw new HttpError(error.error, error.status);
     }
   }
+  /**
+   * POST /assets/emit
+   * @description emit asset to a wallet
+   */
   @Post("/emit", [
     Validate.serialCompose({
       id: ValidatorHelper.isNotEmpty,
@@ -48,8 +52,29 @@ export default class AssetController {
       let newTransaction = await BitcapitalService.emitAsset(req.body);
 
       res.success(responses.HTTP_SUCCESS_DATA(newTransaction));
-    } catch(e) {
-      throw e;
+    } catch (e) {
+ 
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+  }
+  /**
+   * GET /assets
+   * @description list assets in the plataform
+   */
+  @Get("/")
+  public static async listAssets(req: BaseRequest, res: BaseResponse)  {
+    try {
+      let bitcapital = await BitcapitalService.authenticateMediator();
+      let assets = await bitcapital.assets().findAll({});
+
+      res.success(responses.HTTP_SUCCESS_DATA(assets));
+    } catch (e) {
+ 
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
     }
   }
 }

@@ -1,7 +1,18 @@
 import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty, IsNumber } from "class-validator";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp, AfterUpdate, BeforeUpdate } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Timestamp,
+  AfterUpdate,
+  BeforeUpdate,
+  BeforeInsert
+} from "typeorm";
+import { BaseError } from "ts-framework-common";
 import { User, Payment } from ".";
-import Helper from "../lib/Helpers";
+import BalanceService from "../services/BalanceService";
 import * as date from "calcudate";
 import Helpers from "../lib/Helpers";
 
@@ -78,9 +89,19 @@ export default class Proposal extends BaseEntity {
   @Column({ nullable: true, type: "timestamp" })
   deletedAt: Timestamp;
 
+  @BeforeInsert()
+  async verifyBalance() {
+    let lendable = await BalanceService.getLendableBalanceById(this.owner.id as any);
+
+    if (lendable < this.amount) {
+      throw new BaseError('Insufitient funds to create proposal');
+    }
+  }
+
   @BeforeUpdate()
   verifyInstalments() {
-    if (this.finalInstalments && (this.finalInstalments < this.minInstalments || this.finalInstalments > this.maxInstalments)) {
+    if (this.finalInstalments &&
+      (this.finalInstalments < this.minInstalments || this.finalInstalments > this.maxInstalments)) {
       throw new Error(`Total instalments must be between ${this.minInstalments} and ${this.maxInstalments}.`);
     }
 
@@ -91,7 +112,7 @@ export default class Proposal extends BaseEntity {
 
   @AfterUpdate()
   createPayments() {
-    if (this.finalAmount && this.payments.length !== this.finalAmount) {
+    if (this.finalAmount && this.payments.length !== this.finalInstalments) {
       const payments = [];
       const sigleAmount = this.finalAmount / this.finalInstalments;
 
