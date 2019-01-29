@@ -41,3 +41,13 @@ The SDK method bitcapital.wallets().findWalletTransactions(<walletId>, <paginati
     "details": {},
     "stack": "HttpError: [403] [403] Forbidden (stackId: 0af5a2ab-ccd9-493d-8fe8-f26d01995b79) (stackId: 9643ac05-cb72-4005-895f-23d406ec1cd6)\n    at Function.<anonymous> (/home/desoares/Projects/p2p-lending/api/controllers/ConsumerController.ts:207:23)\n    at Generator.throw (<anonymous>)\n    at rejected (/home/desoares/Projects/p2p-lending/api/controllers/ConsumerController.ts:14:65)"
 }
+
+The TS-Framework do not parse error line correctly:
+  TypeError: Cannot read property 'bitCapitalId' of undefined
+    at Function.<anonymous> (/home/desoares/Projects/p2p-lending-sample/api/services/BalanceService.ts:56:81)
+    at Generator.next (<anonymous>)
+    at fulfilled (/home/desoares/Projects/p2p-lending-sample/api/services/BalanceService.ts:4:58)
+    at process._tickCallback (internal/process/next_tick.js:68:7)
+  CONTENT of the line 56 on file BalanceService.ts: "throw e;"
+
+The SDK method bitcapital.consumers().findWalletsById(<id>) returns 404
