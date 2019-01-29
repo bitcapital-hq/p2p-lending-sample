@@ -10,8 +10,10 @@ export default class GetUserBalance {
       function reducer(a: number, b: number) {
         return a + b;
       }
+      const bitcapital = await BitcapitalService.authenticateMediator();
+      const newWallets = await Promise.all(wallets.map(each => bitcapital.wallets().findOne(each.id)));
 
-      return wallets.map(w => w.balances
+      return newWallets.map(w => w.balances
         .filter(b => b.asset_code === process.env.LOCAL_ASSET_CODE)
         .map(a => a.balance)
         .reduce(reducer))
@@ -40,11 +42,16 @@ export default class GetUserBalance {
 
   public static async getLendableBalanceById(id: string) {
     try {
-console.log(id, 'IDIDIDIDIDIDIDIDIDIIDIDIDIDIDIDIDIDIDIDIIDIDIDIDIDIDIDIDIDIDIIDIDIDIDIDIDIDIDIDIDIID')
-      let user = await User.findByBitCapitalId(id);
+      let user = await User.findById(id);
+      if (!user) {
+        console.log(id, user)
+        process.exit(1);
+      }
+
       let bitcapital = await BitcapitalService.authenticateMediator();
-      let wallets = await bitcapital.consumers().findWalletsById(user.bitCapitalId);
-      let mainBalance = await GetUserBalance.getMainBalance(wallets);
+      let BCUser = await bitcapital.consumers().findOne(user.bitCapitalId);
+      console.log(BCUser);
+      let mainBalance = await GetUserBalance.getMainBalance(BCUser.wallets);
       let proposals = await Proposal.find({
         owner: id,
         status: ProposalStatus.OPEN

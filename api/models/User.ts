@@ -164,21 +164,13 @@ export default class User extends BaseEntity {
    * @param bitCapitalId
    */
   public static async findByBitCapitalId(bitCapitalId: string) {
-    return this.findOne({ where: { bitCapitalId } })
+    return this.findOne({ where: { bitCapitalId } });
   }
   /**
-   * Find user by bitCapitalId
-   * @param bitCapitalId
+   * Find user by id
+   * @param id
    */
   public static async findById(id: string) {
-    return this.findOne({ where: { id } })
-  }
-  /**
-   * Finds user by its email.
-   * 
-   * @param email The email address
-   */
-  public static async list(query: object) {
-    return this.find({ where: query });
+    return this.findOne(id.trim());//c3a4b95e-f1dc-4c7f-8c35-bea34519e7cf
   }
 }

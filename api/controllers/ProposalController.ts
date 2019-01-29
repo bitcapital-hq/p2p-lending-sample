@@ -24,7 +24,7 @@ export default class ProposalController {
   ])
   public static async createProposal(req: BaseRequest, res: BaseResponse) {
     try {
-      let user = await User.findById(req.user.DBId);
+      let user = await User.findById(req.user.DBId);  
       let proposal = await Proposal.create({
         owner: user,
         amount: +req.body.amout,
