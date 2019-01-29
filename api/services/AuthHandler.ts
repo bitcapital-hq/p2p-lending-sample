@@ -12,6 +12,11 @@ export default class AuthHandler {
     try {
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
       let dbUser = await User.findByBitCapitalId(authenticatedUser.id);
+
+      if (!dbUser) {
+        throw new Error('User not registered on local DB.');
+      }
+
       let sessionUser = {
         ...authenticatedUser,
         DBId: dbUser.id

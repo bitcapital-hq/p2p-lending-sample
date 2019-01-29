@@ -71,7 +71,7 @@ export default class GetUserBalance {
         status: ProposalStatus.PENDING
       } as any);
       
-      return proposals.map(p => p.amount).reduce((a, b) => a + b);
+      return proposals.length ? proposals.map(p => p.amount).reduce((a, b) => a + b) : 0;
     } catch(e) {
       throw e;
     }

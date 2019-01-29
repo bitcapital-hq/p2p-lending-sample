@@ -171,6 +171,6 @@ export default class User extends BaseEntity {
    * @param id
    */
   public static async findById(id: string) {
-    return this.findOne(id.trim());//c3a4b95e-f1dc-4c7f-8c35-bea34519e7cf
+    return this.findOne(id.trim());
   }
 }
