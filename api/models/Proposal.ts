@@ -92,7 +92,7 @@ export default class Proposal extends BaseEntity {
   @BeforeInsert()
   async verifyBalance() {
     let lendable = await BalanceService.getLendableBalanceById(this.owner.id as any);
-
+//console.log(lendable, 'LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL', this.amount)
     if (lendable < this.amount) {
       throw new BaseError('Insufitient funds to create proposal');
     }

@@ -27,7 +27,7 @@ export default class ProposalController {
       let user = await User.findById(req.user.DBId);  
       let proposal = await Proposal.create({
         owner: user,
-        amount: +req.body.amout,
+        amount: +req.body.amount,
         monthlyInterest: +req.body.monthlyInterest,
         minInstalments: +req.body.minInstalments,
         maxInstalments: +req.body.maxInstalments

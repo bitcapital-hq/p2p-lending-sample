@@ -4,17 +4,23 @@ import { Proposal, ProposalStatus }  from "../models";
 import { SessionUser } from "../models/schemas";
 import { User } from "../models";
 
+function reducer(a: number, b: number) {
+  console.log(a, b, 'AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB')
+  return a + b;
+}
+
 export default class GetUserBalance {
   private static async getMainBalance(wallets: Wallet[]): Promise<number> {
+
     try {
-      function reducer(a: number, b: number) {
-        return a + b;
-      }
       const bitcapital = await BitcapitalService.authenticateMediator();
       const newWallets = await Promise.all(wallets.map(each => bitcapital.wallets().findOne(each.id)));
-
+console.log(wallets)
       return newWallets.map(w => w.balances
-        .filter(b => b.asset_code === process.env.LOCAL_ASSET_CODE)
+        .filter(b => {
+          console.log(b.asset_code, process.env.LOCAL_ASSET_CODE, '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+          return b.asset_code === process.env.LOCAL_ASSET_CODE
+        })
         .map(a => a.balance)
         .reduce(reducer))
       .reduce(reducer);
@@ -32,7 +38,8 @@ export default class GetUserBalance {
         owner: user.DBId,
         status: ProposalStatus.OPEN
       } as any);
-      let commitedBalance = proposals.map(p => p.amount).reduce((a, b) => a + b);
+
+      let commitedBalance = proposals.length ? proposals.map(p => p.amount).reduce(reducer) : 0;
 
       return mainBalance - commitedBalance;
     } catch(e) {
@@ -43,21 +50,17 @@ export default class GetUserBalance {
   public static async getLendableBalanceById(id: string) {
     try {
       let user = await User.findById(id);
-      if (!user) {
-        console.log(id, user)
-        process.exit(1);
-      }
 
       let bitcapital = await BitcapitalService.authenticateMediator();
       let BCUser = await bitcapital.consumers().findOne(user.bitCapitalId);
-      console.log(BCUser);
       let mainBalance = await GetUserBalance.getMainBalance(BCUser.wallets);
+//console.log(mainBalance, 'MAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCE')
       let proposals = await Proposal.find({
         owner: id,
         status: ProposalStatus.OPEN
       } as any);
-      let commitedBalance = proposals.map(p => p.amount).reduce((a, b) => a + b);
-
+      let commitedBalance = proposals.length ? proposals.map(p => p.amount).reduce(reducer) : 0;
+//console.log(mainBalance - commitedBalance, 'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
       return mainBalance - commitedBalance;
     } catch(e) {
       throw e;
@@ -71,7 +74,7 @@ export default class GetUserBalance {
         status: ProposalStatus.PENDING
       } as any);
       
-      return proposals.length ? proposals.map(p => p.amount).reduce((a, b) => a + b) : 0;
+      return proposals.length ? proposals.map(p => p.amount).reduce(reducer) : 0;
     } catch(e) {
       throw e;
     }

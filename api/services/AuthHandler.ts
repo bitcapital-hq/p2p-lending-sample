@@ -11,10 +11,15 @@ export default class AuthHandler {
   public static async auth(req: BaseRequest, res: BaseResponse, next: Function) {
     try {
       let authenticatedUser = await BitcapitalService.authenticate(req.body.username, req.body.password);
+
+      if (!authenticatedUser) {
+        throw new BaseError('User not registered on local DB.');
+      }
+
       let dbUser = await User.findByBitCapitalId(authenticatedUser.id);
 
       if (!dbUser) {
-        throw new Error('User not registered on local DB.');
+        throw new BaseError('User not registered on local DB.');
       }
 
       let sessionUser = {
@@ -44,9 +49,13 @@ export default class AuthHandler {
       let apiClient = await BitcapitalService.getAPIClient();
       let user = await apiClient.oauth().secret(token, { entity: 'wallet', id: null });
       let isValid = await user.isValid();
-      
-      if (isValid) {
+
+      if (isValid && token && token.length > 10) {
         req.user = await AuthHandler.storage.get(token);
+
+        if (!req.user) {
+          throw new BaseError('Can\'t find authenticated user.');
+        }
 
         return next();
       }
