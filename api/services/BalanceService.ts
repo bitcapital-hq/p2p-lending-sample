@@ -4,26 +4,22 @@ import { Proposal, ProposalStatus }  from "../models";
 import { SessionUser } from "../models/schemas";
 import { User } from "../models";
 
-function reducer(a: number, b: number) {
-  console.log(a, b, 'AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB-AB')
-  return a + b;
-}
-
 export default class GetUserBalance {
+  private static reducer(a: number, b: number) {
+    return a + b;
+  }
+
   private static async getMainBalance(wallets: Wallet[]): Promise<number> {
 
     try {
       const bitcapital = await BitcapitalService.authenticateMediator();
       const newWallets = await Promise.all(wallets.map(each => bitcapital.wallets().findOne(each.id)));
-console.log(wallets)
-      return newWallets.map(w => w.balances
-        .filter(b => {
-          console.log(b.asset_code, process.env.LOCAL_ASSET_CODE, '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-          return b.asset_code === process.env.LOCAL_ASSET_CODE
-        })
-        .map(a => a.balance)
-        .reduce(reducer))
-      .reduce(reducer);
+
+      return newWallets.map(wal => wal.balances
+        .filter(bal => bal.asset_code === process.env.LOCAL_ASSET_CODE)
+        .map(ass => ass.balance)
+        .reduce(GetUserBalance.reducer, 0))
+      .reduce(GetUserBalance.reducer, 0);
     } catch(e) {
       throw e;
     }
@@ -31,15 +27,15 @@ console.log(wallets)
 
   public static async getLendableBalance(user: SessionUser) {
     try {
-      let bitcapital = await BitcapitalService.getBitcapitalByToken(user);
-      let wallets = await bitcapital.consumers().findWalletsById(user.id);
-      let mainBalance = await GetUserBalance.getMainBalance(wallets);
-      let proposals = await Proposal.find({
+      const bitcapital = await BitcapitalService.getBitcapitalByToken(user);
+      const wallets = await bitcapital.consumers().findWalletsById(user.id);
+      const mainBalance = await GetUserBalance.getMainBalance(wallets);
+      const proposals = await Proposal.find({
         owner: user.DBId,
         status: ProposalStatus.OPEN
       } as any);
 
-      let commitedBalance = proposals.length ? proposals.map(p => p.amount).reduce(reducer) : 0;
+      const commitedBalance = proposals.map(p => p.amount).reduce(GetUserBalance.reducer, 0);
 
       return mainBalance - commitedBalance;
     } catch(e) {
@@ -54,13 +50,12 @@ console.log(wallets)
       let bitcapital = await BitcapitalService.authenticateMediator();
       let BCUser = await bitcapital.consumers().findOne(user.bitCapitalId);
       let mainBalance = await GetUserBalance.getMainBalance(BCUser.wallets);
-//console.log(mainBalance, 'MAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCEMAINBALANCE')
       let proposals = await Proposal.find({
-        owner: id,
+        owner: user.id,
         status: ProposalStatus.OPEN
       } as any);
-      let commitedBalance = proposals.length ? proposals.map(p => p.amount).reduce(reducer) : 0;
-//console.log(mainBalance - commitedBalance, 'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
+      let commitedBalance = proposals.map(p => p.amount).reduce(GetUserBalance.reducer, 0);
+
       return mainBalance - commitedBalance;
     } catch(e) {
       throw e;
@@ -74,7 +69,7 @@ console.log(wallets)
         status: ProposalStatus.PENDING
       } as any);
       
-      return proposals.length ? proposals.map(p => p.amount).reduce(reducer) : 0;
+      return proposals.map(p => p.amount).reduce(GetUserBalance.reducer, 0);
     } catch(e) {
       throw e;
     }

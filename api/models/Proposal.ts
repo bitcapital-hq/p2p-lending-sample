@@ -41,8 +41,8 @@ export default class Proposal extends BaseEntity {
 
   @IsNotEmpty()
   @IsEnum(ProposalStatus)
-  @Column("enum", { enum: ProposalStatus, default: ProposalStatus.PENDING, nullable: false })
-  status: ProposalStatus.PENDING;
+  @Column("enum", { enum: ProposalStatus, default: ProposalStatus.OPEN, nullable: false })
+  status: ProposalStatus.OPEN;
 
   @IsNotEmpty()
   @ManyToOne(type => User, owner => owner.proposals)
@@ -92,9 +92,9 @@ export default class Proposal extends BaseEntity {
   @BeforeInsert()
   async verifyBalance() {
     let lendable = await BalanceService.getLendableBalanceById(this.owner.id as any);
-//console.log(lendable, 'LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL', this.amount)
+
     if (lendable < this.amount) {
-      throw new BaseError('Insufitient funds to create proposal');
+      throw new BaseError('Insufitient funds to create proposal. Code 400.');
     }
   }
 
@@ -102,7 +102,7 @@ export default class Proposal extends BaseEntity {
   verifyInstalments() {
     if (this.finalInstalments &&
       (this.finalInstalments < this.minInstalments || this.finalInstalments > this.maxInstalments)) {
-      throw new Error(`Total instalments must be between ${this.minInstalments} and ${this.maxInstalments}.`);
+      throw new BaseError(`Total instalments must be between ${this.minInstalments} and ${this.maxInstalments}. Code 400.`);
     }
 
     if (this.finalInstalments && !this.finalAmount) {
