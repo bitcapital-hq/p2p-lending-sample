@@ -1,19 +1,21 @@
 import { Controller, BaseRequest, BaseResponse, Post, HttpError, Put, HttpCode, Get } from "ts-framework";
-import { LessThan, MoreThan } from "typeorm";
+import { LessThan, MoreThan, Between } from "typeorm";
 import Validate from "ts-framework-validation";
 import ValidatorHelper from "../services/ValidatorHelper";
-import { Proposal, User } from "../models";
+import { Proposal, User, ProposalStatus } from "../models";
 import ErrorParser from "../services/ErrorParser";
 import * as responses from "../lib/responses";
 import AuthHandler from "../services/AuthHandler";
 import Helpers from "../lib/Helpers";
+import { Payment, Recipient } from "bitcapital-core-sdk";
+import BitcapitalService from "../services/BitcapitalService";
 
 @Controller("/proposals")
 export default class ProposalController {
   /**
    * 
    */
-  private static async queryParser(query: object): Promise<object> {
+  private static async queryParser(query: any): Promise<any> {
     const validProps = [
       'maxAmount', 'minAmount', 'maxInterest', 'minInterest', 'maxInstallments', 'minInstallmens', 'amount', 'interest'
     ];
@@ -33,18 +35,30 @@ export default class ProposalController {
       minAmount: MoreThan,
       maxInterest: LessThan,
       minInterest: MoreThan,
-      //maxInstallments: ,
-     // minInstallmens: '',
       interest: (i: number) => i
     };
     let where = [];
+
+    if (query.minAmount && query.maxAmount) {
+      where.push({ amount: Between(query.minAmount, query.maxAmount) });
+      delete query.minAmount;
+      delete query.maxAmount;
+    }
+
+    if (query.minInterest && query.maxInterest) {
+      where.push({ interest: Between(query.minInterest, query.maxInterest) });
+      delete query.minInterest;
+      delete query.maxInterest;
+    }
 
     for (let prop in query) {
       if (validProps.includes(prop) && !isNaN(+query[prop])) {
         where.push({[props[prop]]: method[prop](query[prop])});
       }
     }
-console.log(where, 'qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');
+
+    where.push({ status: 'open' });
+
     return where;
   }
   /**
@@ -109,10 +123,27 @@ console.log(where, 'qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');
   public static async updateProposal(req: BaseRequest, res: BaseResponse) {
     try {
       let proposal = await Proposal.findOne(req.params.id);
-      proposal.borrower = req.body.borrower;
+
+      proposal.borrower = await User.findById(req.user.DBId);
       proposal.finalInstalments = req.body.finalInstalments;
 
-      let totalInterst = Helpers.totalInterest(proposal.monthlyInterest, proposal.amount, proposal.finalInstalments);
+      proposal.finalAmount = proposal.amount + Helpers.totalInterest(proposal.monthlyInterest, proposal.amount, proposal.finalInstalments);
+      proposal.status = ProposalStatus.PENDING;
+
+      let updatedeProposal = await proposal.save();
+      let bitcapital = await BitcapitalService.authenticateMediator();
+      let source = await bitcapital.users().findOne(proposal.owner.bitCapitalId);
+
+      await bitcapital.payments().pay({
+        source: source.wallets[0].id,
+        recipients: [{
+          destination: req.user.wallets[0].id,
+          amount: proposal.amount as any
+        }]
+      });
+
+
+      res.success(responses.HTTP_SUCCESS_DATA(updatedeProposal));
     } catch(e) {
       let error = new ErrorParser(e);
 

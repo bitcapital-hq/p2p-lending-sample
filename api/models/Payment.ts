@@ -1,4 +1,4 @@
-import { IsAlphanumeric, validate, IsInt, IsNumber, IsEnum, IsNotEmpty, IsIn } from "class-validator";
+import { validate, IsInt, IsNumber, IsEnum, IsNotEmpty } from "class-validator";
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
 import { User,  Proposal } from ".";
 

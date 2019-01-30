@@ -42,7 +42,7 @@ export default class Proposal extends BaseEntity {
   @IsNotEmpty()
   @IsEnum(ProposalStatus)
   @Column("enum", { enum: ProposalStatus, default: ProposalStatus.OPEN, nullable: false })
-  status: ProposalStatus.OPEN;
+  status: ProposalStatus;
 
   @IsNotEmpty()
   @ManyToOne(type => User, owner => owner.proposals)
