@@ -1,4 +1,4 @@
-import { Controller, BaseRequest, BaseResponse, Post, HttpError, Put, HttpCode, Get } from "ts-framework";
+import { Controller, BaseRequest, BaseResponse, Post, HttpError, Put, Get } from "ts-framework";
 import { LessThan, MoreThan, Between } from "typeorm";
 import Validate from "ts-framework-validation";
 import ValidatorHelper from "../services/ValidatorHelper";
@@ -13,7 +13,8 @@ import BitcapitalService from "../services/BitcapitalService";
 @Controller("/proposals")
 export default class ProposalController {
   /**
-   * 
+   * Parses the req.query object to a DB queryable one
+   * @param query object contaning the queried values
    */
   private static async queryParser(query: any): Promise<any> {
     const validProps = [
@@ -135,13 +136,13 @@ export default class ProposalController {
       let source = await bitcapital.users().findOne(proposal.owner.bitCapitalId);
 
       await bitcapital.payments().pay({
+        asset: process.env.LOCAL_ASSET_ID,
         source: source.wallets[0].id,
         recipients: [{
           destination: req.user.wallets[0].id,
           amount: proposal.amount as any
         }]
       });
-
 
       res.success(responses.HTTP_SUCCESS_DATA(updatedeProposal));
     } catch(e) {

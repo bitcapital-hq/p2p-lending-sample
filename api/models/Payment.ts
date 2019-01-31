@@ -1,6 +1,6 @@
 import { validate, IsInt, IsNumber, IsEnum, IsNotEmpty } from "class-validator";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
-import { User,  Proposal } from ".";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, Timestamp } from "typeorm";
+import { AppEntity, User,  Proposal } from ".";
 
 export enum PaymentStatus {
   PENDING = "pending",
@@ -8,11 +8,8 @@ export enum PaymentStatus {
 }
 
 @Entity(Payment.tableName)
-export default class Payment extends BaseEntity {
+export default class Payment extends AppEntity {
   public static readonly tableName = "payments";
-
-  @PrimaryGeneratedColumn("uuid")
-  id: number;
 
   @IsNotEmpty()
   @ManyToOne(type => User, origin => origin.payments, {
@@ -54,18 +51,9 @@ export default class Payment extends BaseEntity {
   @Column("enum", { enum: PaymentStatus, default: PaymentStatus.PENDING, nullable: false })
   status: PaymentStatus.PENDING;
 
-  @Column({ nullable: false, type: "timestamp", default: new Date() })
+  @Column({ nullable: false, type: "timestamp", default: Date.now() })
   dueTo: Timestamp;
-
-  @Column({ nullable: false, type: "timestamp", default: new Date() })
-  createdAt: Timestamp;
   
-  @Column({ nullable: true, type: "timestamp" })
-  updatedAt: Timestamp;
-
-  @Column({ nullable: true, type: "timestamp" })
-  deletedAt: Timestamp;
-
   constructor(data: Partial<Payment>) {
     super();
     Object.assign(this, data, {});
@@ -76,18 +64,11 @@ export default class Payment extends BaseEntity {
   }
 
   /**
-   * Finds proposal by its id.
+   * Finds payment by its id.
    * 
-   * @param id The proposal ID
+   * @param id The payment ID
    */
   public static async findById(id: number) {
     return this.findOne({ where: { id } });
   }
 }
-/**
-    Tipo
-    Depósito
-    Prestação
-    Referência ao Bitcapital Core
-
- */

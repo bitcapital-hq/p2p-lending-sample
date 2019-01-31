@@ -1,6 +1,12 @@
-import { IsAlphanumeric, validate, IsInt, IsEnum, IsNotEmpty, IsNumber } from "class-validator";
+import { 
+  IsAlphanumeric,
+  validate,
+  IsInt,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber 
+} from "class-validator";
 import {
-  BaseEntity,
   Column,
   Entity,
   PrimaryGeneratedColumn,
@@ -11,7 +17,7 @@ import {
   BeforeInsert
 } from "typeorm";
 import { BaseError } from "ts-framework-common";
-import { User, Payment } from ".";
+import { AppEntity, User, Payment } from ".";
 import BalanceService from "../services/BalanceService";
 import * as date from "calcudate";
 import Helpers from "../lib/Helpers";
@@ -23,11 +29,8 @@ export enum ProposalStatus {
 }
 
 @Entity(Proposal.tableName)
-export default class Proposal extends BaseEntity {
+export default class Proposal extends AppEntity {
   public static readonly tableName = "proposals";
-
-  @PrimaryGeneratedColumn("uuid")
-  id: number;
 
   @IsNotEmpty()
   @IsAlphanumeric()
@@ -79,15 +82,6 @@ export default class Proposal extends BaseEntity {
   @IsInt()
   @Column({ nullable: true, type: "float" })
   finalAmount: number;
-
-  @Column({ nullable: false, type: "timestamp", default: new Date() })
-  createdAt: Timestamp;
-  
-  @Column({ nullable: true, type: "timestamp" })
-  updatedAt: Timestamp;
-
-  @Column({ nullable: true, type: "timestamp" })
-  deletedAt: Timestamp;
 
   @BeforeInsert()
   async verifyBalance() {

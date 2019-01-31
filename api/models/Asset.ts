@@ -1,13 +1,11 @@
 import { IsAlphanumeric, IsNotEmpty, IsUUID } from "class-validator";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { AppEntity } from ".";
 
 
 @Entity(Asset.tableName)
-export default class Asset extends BaseEntity {
-  public static readonly tableName = "entities";
-
-  @PrimaryGeneratedColumn("uuid")
-  id: number;
+export default class Asset extends AppEntity {
+  public static readonly tableName = "assets";
 
   @IsNotEmpty()
   @IsAlphanumeric()

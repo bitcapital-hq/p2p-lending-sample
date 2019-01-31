@@ -1,4 +1,10 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, OneToMany, Timestamp } from "typeorm";
+import { 
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  Timestamp 
+} from "typeorm";
 import {
   Validate,
   IsEnum,
@@ -10,7 +16,7 @@ import {
   IsInt
 } from "class-validator";
 import * as cpf from "cpf";
-import { Proposal, Payment } from ".";
+import { AppEntity, Proposal, Payment } from ".";
 
 export enum UserStatus {
   ACTIVE = "active",
@@ -36,11 +42,8 @@ class IsCPF implements ValidatorConstraintInterface {
 }
 
 @Entity(User.tableName)
-export default class User extends BaseEntity {
+export default class User extends AppEntity {
   public static readonly tableName = "users";
-
-  @PrimaryGeneratedColumn("uuid")
-  id: number;
 
   @IsAlphanumeric()
   @Column({ nullable: false, unique: true })
@@ -133,15 +136,6 @@ export default class User extends BaseEntity {
     nullable: true
   })
   incames?: Payment[];
-
-  @Column({ nullable: false, type: "timestamp", default: new Date() })
-  createdAt: Timestamp;
-  
-  @Column({ nullable: true, type: "timestamp" })
-  updatedAt: Timestamp;
-
-  @Column({ nullable: true, type: "timestamp" })
-  deletedAt: Timestamp;
 
   constructor(data: Partial<User>) {
     super();
