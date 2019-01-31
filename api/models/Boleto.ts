@@ -48,6 +48,17 @@ export default class Boleto extends AppEntity {
   }
 
   /**
+   * Find the boleto by it's id
+   * @param id the id of the boleto
+   */
+  public static async findById(id: string) {
+    try {
+      return this.findOne(id)
+    } catch(e) {
+      throw new BaseError(e.message);
+    }
+  }
+  /**
    * Update a boleto to paid status and pay the wallet
    * @param id the id of the boleto to pay
    */
@@ -68,7 +79,7 @@ export default class Boleto extends AppEntity {
    */
   public static async createBoleto(walletId: string, amount: number): Promise<Boleto> {
     try {
-      let dueTo = +date.add().days(2);
+      let dueTo = date.add().days(2);
       let boleto = await this.create({
         walletId,
         amount,

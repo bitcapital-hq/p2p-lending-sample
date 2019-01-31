@@ -6,7 +6,6 @@ import Bitcapital, {
   MemoryStorage,
   Document,
   AssetEmitRequestSchema,
-  UserSchema,
   Payment
 } from 'bitcapital-core-sdk';
 import { BaseError } from 'ts-framework-common';
@@ -165,6 +164,11 @@ class BitcapitalService {
   public static async createAsset(asset: Asset): Promise<Asset>{
     try {
       let apiClient = await BitcapitalService.authenticateMediator();
+  
+      let me = await apiClient.current().wallets;
+      let wallet = me[0];
+      asset.wallet = wallet;
+
       let newAsset = await apiClient.assets().create(asset);
 
       return newAsset;

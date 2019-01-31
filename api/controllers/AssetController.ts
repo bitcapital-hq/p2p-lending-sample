@@ -15,20 +15,23 @@ export default class AssetController {
   @Post("/", [
     Validate.serialCompose({
       code: ValidatorHelper.isValidName,
-      name: ValidatorHelper.isValidName,
-      wallet: ValidatorHelper.isNotEmpty
+      name: ValidatorHelper.isValidName
     })
   ])
   public static async createAsset(req: BaseRequest, res: BaseResponse) {
     try {
-     let newAsset = await BitcapitalService.createAsset(req.body);
-     let dbAsset = await Asset.create({
-       code: newAsset.code,
-       name: newAsset.name,
-       wallet: newAsset.wallet as any
-     }).save();
+      let newAsset = await BitcapitalService.createAsset({
+        code: req.body.code,
+        name: req.body.name
+      } as any);
+      let dbAsset = await Asset.create({
+        code: newAsset.code,
+        name: newAsset.name,
+        wallet: newAsset.wallet as any,
+        assetId: newAsset.id
+      }).save();
 
-     res.success(dbAsset);
+     res.success(responses.HTTP_SUCCESS_DATA(dbAsset));
     } catch (e) {
  
       let error = new ErrorParser(e);
@@ -40,25 +43,25 @@ export default class AssetController {
    * POST /assets/emit
    * @description emit asset to a wallet
    */
-  @Post("/emit", [
-    Validate.serialCompose({
-      id: ValidatorHelper.isNotEmpty,
-      amount: ValidatorHelper.isValidMoney,
-      destination: ValidatorHelper.isNotEmpty
-    })
-  ])
-  public static async emitAsset(req: BaseRequest, res: BaseResponse) {
-    try {
-      let newTransaction = await BitcapitalService.emitAsset(req.body);
+  // @Post("/emit", [
+  //   Validate.serialCompose({
+  //     id: ValidatorHelper.isNotEmpty,
+  //     amount: ValidatorHelper.isValidMoney,
+  //     destination: ValidatorHelper.isNotEmpty
+  //   })
+  // ])
+  // public static async emitAsset(req: BaseRequest, res: BaseResponse) {
+  //   try {
+  //     let newTransaction = await BitcapitalService.emitAsset(req.body);
 
-      res.success(responses.HTTP_SUCCESS_DATA(newTransaction));
-    } catch (e) {
+  //     res.success(responses.HTTP_SUCCESS_DATA(newTransaction));
+  //   } catch (e) {
  
-      let error = new ErrorParser(e);
+  //     let error = new ErrorParser(e);
 
-      throw new HttpError(error.error, error.status);
-    }
-  }
+  //     throw new HttpError(error.error, error.status);
+  //   }
+  // }
   /**
    * GET /assets
    * @description list assets in the plataform

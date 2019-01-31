@@ -3,6 +3,7 @@
 import Config from '../config';
 import Server, { ServerOptions } from 'ts-framework';
 import AssetController from './controllers/AssetController';
+import BoletoController from './controllers/BoletoController';
 import ConsumerController from './controllers/ConsumerController';
 import ProposalController from './controllers/ProposalController';
 import StatusController from './controllers/StatusController';
@@ -17,6 +18,7 @@ export default class MainServer extends Server {
       router: {
         controllers: {
           AssetController,
+          BoletoController,
           ConsumerController,
           ProposalController,
           StatusController,

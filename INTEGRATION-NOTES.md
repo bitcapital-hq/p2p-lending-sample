@@ -51,3 +51,6 @@ The TS-Framework do not parse error line correctly:
   CONTENT of the line 56 on file BalanceService.ts: "throw e;"
 
 The SDK method bitcapital.consumers().findWalletsById(<id>) returns 404
+
+
+The method apiClient.users().me(); returnd 500 erro Invalid value for toke Undefined

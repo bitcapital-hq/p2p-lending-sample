@@ -128,7 +128,8 @@ export default class ProposalController {
       proposal.borrower = await User.findById(req.user.DBId);
       proposal.finalInstalments = req.body.finalInstalments;
 
-      proposal.finalAmount = proposal.amount + Helpers.totalInterest(proposal.monthlyInterest, proposal.amount, proposal.finalInstalments);
+      proposal.finalAmount = proposal.amount +
+        Helpers.totalInterest(proposal.monthlyInterest, proposal.amount, proposal.finalInstalments);
       proposal.status = ProposalStatus.PENDING;
 
       let updatedeProposal = await proposal.save();

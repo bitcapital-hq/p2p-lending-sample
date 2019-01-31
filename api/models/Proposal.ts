@@ -9,9 +9,7 @@ import {
 import {
   Column,
   Entity,
-  PrimaryGeneratedColumn,
   ManyToOne,
-  Timestamp,
   AfterUpdate,
   BeforeUpdate,
   BeforeInsert
@@ -105,7 +103,7 @@ export default class Proposal extends AppEntity {
   }
 
   @AfterUpdate()
-  createPayments() {
+  async createPayments() {
     if (this.finalAmount && this.payments.length !== this.finalInstalments) {
       const payments = [];
       const sigleAmount = this.finalAmount / this.finalInstalments;
@@ -122,7 +120,7 @@ export default class Proposal extends AppEntity {
         payments.push(payment);
       }
 
-      Payment.insert(payments);
+      await Payment.insert(payments);
     }    
   }
 

@@ -22,6 +22,11 @@ export default class Asset extends AppEntity {
   @Column({ nullable: false })
   wallet: number;
 
+  @IsNotEmpty()
+  @IsAlphanumeric()
+  @Column({ nullable: false })
+  assetId: string;
+
   constructor(data: Partial<Asset>) {
     super();
     Object.assign(this, data, {});

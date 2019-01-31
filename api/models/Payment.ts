@@ -51,7 +51,7 @@ export default class Payment extends AppEntity {
   @Column("enum", { enum: PaymentStatus, default: PaymentStatus.PENDING, nullable: false })
   status: PaymentStatus.PENDING;
 
-  @Column({ nullable: false, type: "timestamp", default: Date.now() })
+  @Column({ nullable: false, type: "timestamp" })
   dueTo: Timestamp;
   
   constructor(data: Partial<Payment>) {

@@ -50,6 +50,10 @@ export default class User extends AppEntity {
   bitCapitalId: string;
 
   @IsAlphanumeric()
+  @Column({ nullable: false, unique: true, default: '2e7e028b-444c-489e-a892-b04851db1862' })
+  walletId: string;
+
+  @IsAlphanumeric()
   @Column({ nullable: false })
   firstName: string;
 

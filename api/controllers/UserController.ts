@@ -8,20 +8,20 @@ import AuthHandler from '../services/AuthHandler';
 
 @Controller("/users")
 export default class UserController {
-  @Post('/test', [
-    AuthHandler.verify
-  ])
-  static async test(req: BaseRequest, res: BaseResponse) {
-    try {
-      let bitcapital =  await BitcapitalService.getBitcapitalByToken(req.user);
-      let test = bitcapital.session().oauthWebService;
+  // @Post('/test', [
+  //   AuthHandler.verify
+  // ])
+  // static async test(req: BaseRequest, res: BaseResponse) {
+  //   try {
+  //     let bitcapital =  await BitcapitalService.getBitcapitalByToken(req.user);
+  //     let test = bitcapital.session().oauthWebService;
 
-      res.success(test);
-    } catch(e) {
-      let error = new ErrorParser(e);
-      throw new HttpError(error.error, error.status);
-    }
-  }
+  //     res.success(test);
+  //   } catch(e) {
+  //     let error = new ErrorParser(e);
+  //     throw new HttpError(error.error, error.status);
+  //   }
+  // }
   /**
    * GET /users/me
    * @description get user by token
@@ -105,6 +105,7 @@ export default class UserController {
   
       let dbUser = await User.create({
         bitCapitalId: remoteUser.id,
+        walletId: remoteUser.wallets[0].id,
         firstName: remoteUser.firstName,
         lastName: remoteUser.lastName,
         email: remoteUser.email,

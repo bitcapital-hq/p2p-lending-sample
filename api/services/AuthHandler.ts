@@ -24,7 +24,8 @@ export default class AuthHandler {
 
       let sessionUser = {
         ...authenticatedUser,
-        DBId: dbUser.id
+        DBId: dbUser.id,
+        walletId: dbUser.walletId
       }
 
       AuthHandler.storage.put(authenticatedUser.credentials.accessToken, sessionUser);
@@ -61,6 +62,15 @@ export default class AuthHandler {
       }
 
       throw new BaseError('Trying to authenticate an invalid user! Status 401');
+    } catch(e) {
+      let error = new ErrorParser(e);
+
+      throw new HttpError(error.error, error.status);
+    }
+  }
+  public static async verifyPostBack(req: BaseRequest, res: BaseResponse, next: Function) {
+    try {
+      return next();
     } catch(e) {
       let error = new ErrorParser(e);
 
