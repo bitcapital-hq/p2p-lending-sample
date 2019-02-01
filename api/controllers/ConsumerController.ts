@@ -35,6 +35,7 @@ export default class ConsumerController {
 
       await User.create({
         bitCapitalId: remoteUser.id,
+        walletId: remoteUser.wallets[0].id,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,

@@ -64,17 +64,17 @@ export default class Proposal extends AppEntity {
   @IsNotEmpty()
   @IsInt()
   @Column({ nullable: false, type: "int" })
-  minInstalments: number;
+  minInstallments: number;
 
   @IsNotEmpty()
   @IsInt()
   @Column({ nullable: false, type: "int" })
-  maxInstalments: number;
+  maxInstallments: number;
 
   @IsNotEmpty()
   @IsInt()
   @Column({ nullable: true, type: "int" })
-  finalInstalments: number;
+  finalInstallments: number;
 
   @IsNotEmpty()
   @IsInt()
@@ -92,21 +92,21 @@ export default class Proposal extends AppEntity {
 
   @BeforeUpdate()
   verifyInstalments() {
-    if (this.finalInstalments &&
-      (this.finalInstalments < this.minInstalments || this.finalInstalments > this.maxInstalments)) {
-      throw new BaseError(`Total instalments must be between ${this.minInstalments} and ${this.maxInstalments}. Code 400.`);
+    if (this.finalInstallments &&
+      (this.finalInstallments < this.minInstallments || this.finalInstallments > this.maxInstallments)) {
+      throw new BaseError(`Total instalments must be between ${this.minInstallments} and ${this.maxInstallments}. Code 400.`);
     }
 
-    if (this.finalInstalments && !this.finalAmount) {
-      this.finalAmount = this.amount + Helpers.totalInterest(this.monthlyInterest, this.amount, this.finalInstalments);
+    if (this.finalInstallments && !this.finalAmount) {
+      this.finalAmount = this.amount + Helpers.totalInterest(this.monthlyInterest, this.amount, this.finalInstallments);
     }
   }
 
   @AfterUpdate()
   async createPayments() {
-    if (this.finalAmount && this.payments.length !== this.finalInstalments) {
+    if (this.finalAmount && this.payments.length !== this.finalInstallments) {
       const payments = [];
-      const sigleAmount = this.finalAmount / this.finalInstalments;
+      const sigleAmount = this.finalAmount / this.finalInstallments;
 
       for (let i = 0; i < this.finalAmount; i++) {
         let payment = new  Payment({

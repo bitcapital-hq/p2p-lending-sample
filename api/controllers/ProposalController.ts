@@ -71,8 +71,8 @@ export default class ProposalController {
     Validate.serialCompose({
       amount: ValidatorHelper.isValidMoney,
       monthlyInterest: ValidatorHelper.isValidMoney,
-      minInstalments: ValidatorHelper.isValidInt,
-      maxInstalments: ValidatorHelper.isValidInt
+      minInstallments: ValidatorHelper.isValidInt,
+      maxInstallments: ValidatorHelper.isValidInt
     })
   ])
   public static async createProposal(req: BaseRequest, res: BaseResponse) {
@@ -82,8 +82,8 @@ export default class ProposalController {
         owner: user,
         amount: +req.body.amount,
         monthlyInterest: +req.body.monthlyInterest,
-        minInstalments: +req.body.minInstalments,
-        maxInstalments: +req.body.maxInstalments
+        minInstallments: +req.body.minInstallments,
+        maxInstallments: +req.body.maxInstallments
       }).save();
 
       res.success(responses.HTTP_SUCCESS_DATA(proposal));
@@ -118,7 +118,7 @@ export default class ProposalController {
     AuthHandler.verify,
     Validate.serialCompose({
       borrower: ValidatorHelper.isNotEmpty,
-      finalInstalments: ValidatorHelper.isValidInt
+      finalInstallments: ValidatorHelper.isValidInt
     })
   ])
   public static async updateProposal(req: BaseRequest, res: BaseResponse) {
@@ -126,10 +126,10 @@ export default class ProposalController {
       let proposal = await Proposal.findOne(req.params.id);
 
       proposal.borrower = await User.findById(req.user.DBId);
-      proposal.finalInstalments = req.body.finalInstalments;
+      proposal.finalInstallments = req.body.finalInstallments;
 
       proposal.finalAmount = proposal.amount +
-        Helpers.totalInterest(proposal.monthlyInterest, proposal.amount, proposal.finalInstalments);
+        Helpers.totalInterest(proposal.monthlyInterest, proposal.amount, proposal.finalInstallments);
       proposal.status = ProposalStatus.PENDING;
 
       let updatedeProposal = await proposal.save();
