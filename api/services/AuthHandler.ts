@@ -1,5 +1,5 @@
 import { StorageUtil, MemoryStorage } from "bitcapital-core-sdk";
-import { BaseRequest, BaseResponse, HttpError } from "ts-framework";
+import { BaseRequest, BaseResponse, HttpError, HttpCode } from "ts-framework";
 import { BaseError } from "ts-framework-common";
 import BitcapitalService from "./BitcapitalService";
 import { User } from "../models";
@@ -70,6 +70,17 @@ export default class AuthHandler {
   }
   public static async verifyPostBack(req: BaseRequest, res: BaseResponse, next: Function) {
     try {
+      if (!req.headers.authorization) {
+        throw new HttpError('No authorization headers. Code 400.', HttpCode.Client.BAD_REQUEST);
+      }
+
+      let auth = req.headers.authorization.replace('Basic ', '');
+      let decrypted = Buffer.from(auth, 'base64');
+
+      if (decrypted.toString() !== `${process.env.REMOTE_AUTH_SECRET}:${process.env.REMOTE_AUTH_PASS}`) {
+        throw new HttpError('UNAUTHORIZED', HttpCode.Client.UNAUTHORIZED);
+      }
+
       return next();
     } catch(e) {
       let error = new ErrorParser(e);

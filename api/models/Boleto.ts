@@ -5,6 +5,7 @@ import { AppEntity } from ".";
 import * as date from "calcudate";
 
 export enum BoletoStatus {
+  EXPIRED = "expired",
   PENDING = "pending",
   PAID = "paid"
 };
@@ -22,6 +23,7 @@ export default class Boleto extends AppEntity {
 
   @IsNotEmpty()
   @IsNumber()
+  @Column({ nullable: false, type: "float8" })
   amount: number;
 
   @Column({ nullable: false, type: "timestamp" })
@@ -34,6 +36,8 @@ export default class Boleto extends AppEntity {
   @BeforeUpdate()
   verifyDueTo() {
     if (+this.dueTo < Date.now()) {
+      this.status = BoletoStatus.EXPIRED;
+      this.save();
       throw new BaseError('Boleto expired. Code 400');
     }
   }
@@ -65,7 +69,9 @@ export default class Boleto extends AppEntity {
   public static async payBoleto(id: number) {
     try {
       let boleto = await this.findOne({ where: { id } });
+
       boleto.status = BoletoStatus.PAID;
+      await boleto.save();
 
       return true;
     } catch(e) {

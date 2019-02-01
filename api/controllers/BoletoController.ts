@@ -82,15 +82,25 @@ export default class BoletoController {
   public static async payBoleto(req: BaseRequest, res: BaseResponse) {
     try {
       let boleto = await Boleto.findById(req.params.id);
+
+      if (boleto.status === BoletoStatus.EXPIRED || boleto.status === BoletoStatus.PAID) {
+        throw new HttpError('Boleto alread paid or expired.', HttpCode.Server.SERVICE_UNAVAILABLE);
+      }
+
+      if (!boleto) {
+        throw new HttpError('Boleto not found!', HttpCode.Server.SERVICE_UNAVAILABLE);
+      }
+
       let transaction = await BitcapitalService.deposit({
         id: process.env.LOCAL_ASSET_ID,
-        amount: boleto.amount,
+        amount: boleto.amount.toString(),
         wallet: boleto.walletId 
       } as any);
+      let paid = await Boleto.payBoleto(req.params.id);
       let isValid = await transaction.isValid();
 
-      if (isValid) {
-        return res.success(responses.HTTP_SUCCESS);
+      if (isValid && paid) {
+        return res.success(responses.HTTP_SUCCESS_DATA(transaction));
       }
 
       throw new HttpError('INVALID TRANSACTION CAUGHT', HttpCode.Server.INTERNAL_SERVER_ERROR);
