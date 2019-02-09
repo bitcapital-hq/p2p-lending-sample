@@ -55,7 +55,7 @@ export default class GetUserBalance {
         status: ProposalStatus.OPEN
       } as any);
       let commitedBalance = proposals.map(p => p.amount).reduce(GetUserBalance.reducer, 0);
-      console.log(commitedBalance, '22222222222222222222222222222222222222222222222222222222222')
+
       return mainBalance - commitedBalance;
     } catch(e) {
       throw e;

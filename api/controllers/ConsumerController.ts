@@ -1,4 +1,4 @@
-import { DocumentType } from 'bitcapital-core-sdk';
+import { DocumentType, Payment } from 'bitcapital-core-sdk';
 import { Controller, Get, BaseRequest, BaseResponse, Post, Put, HttpError } from "ts-framework";
 import Validate, { Params } from "ts-framework-validation";
 import BitcapitalService from "../services/BitcapitalService" ;
@@ -7,6 +7,7 @@ import { User, Proposal, ProposalStatus } from "../models";
 import ValidatorHelper from "../services/ValidatorHelper";
 import AuthHandler from "../services/AuthHandler";
 import * as responses from "../lib/responses";
+import { join } from 'path';
 
 @Controller("/consumer")
 export default class ConsumerController {
@@ -237,7 +238,7 @@ export default class ConsumerController {
     }
   }
   /**
-   * GET /consumer/lendingStatement
+   * GET /consumer/lendingStatement/:skip
    * @description Get consumer lending statement
    */
   @Get("/lendingStatement/:skip", [
@@ -245,13 +246,18 @@ export default class ConsumerController {
   ])
   public static async lending(req: BaseRequest, res: BaseResponse) {
     try {
-      let lendings = Proposal.find({owner: req.user.BDId, status: ProposalStatus.PENDING});
+      let lendings = await Proposal.findAndCount({
+        where: {owner: req.user.DBId, status: ProposalStatus.PENDING},
+        skip: req.params.skip,
+        take: +process.env.PAGINATION_LIMIT,
+        // join: [Payment, User]
+      });
 
-      
+      res.success(responses.HTTP_SUCCESS_DATA_PAGINATED(lendings));
     } catch(e) {
       let error = new ErrorParser(e);
 
       throw new HttpError(error.error, error.status);
     }
   }
-}//https://github.com/bitcapital-hq/bitcapital-core/blob/master/api/jobs/RootDomainJob.ts
+}

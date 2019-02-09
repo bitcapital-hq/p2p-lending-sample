@@ -100,10 +100,10 @@ export default class ProposalController {
   @Get("/search")
   public static async searchProposals(req: BaseRequest, res: BaseResponse) {
     try {
-      let result = await Proposal.find({
+      let result = await Proposal.findAndCount({
         where: await ProposalController.queryParser(req.query)
       });
-      res.success(responses.HTTP_SUCCESS_DATA(result))
+      res.success(responses.HTTP_SUCCESS_DATA_PAGINATED(result))
     } catch (e) {
       let error = new ErrorParser(e);
 
