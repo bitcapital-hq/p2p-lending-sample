@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  postgres-p2p:
+    image: postgres
+    restart: always
+    volumes:
+      - postgresql-p2p-data:/var/lib/postgresql-p2p
+    environment:
+      - POSTGRES_USER=bitcapital
+      - POSTGRES_PASSWORD=bitcapital
+      - POSTGRES_DB=bitcapital_p2p
+    hostname: postgres_p2p
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "bitcapital", "-d", "bitcapital_p2p"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  p2p-lending:
+    restart: always
+    ports:
+      - 3000:3000
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - PORT=3000
+      - DATABASE_HOST=localhost
+      - DATABASE_PORT=5432
+      - DATABASE_USER=bitcapital
+      - DATABASE_PASSWORD=bitcapital
+      - BITCAPITAL_CLIENT_URL=https://testnet.btcore.app
+      - BITCAPITAL_CLIENT_ID=p2p-lending-sample
+      - BITCAPITAL_CLIENT_SECRET=91c29bca-3cf3-4324-ba7a-0eb933a4b01b
+      - BITCAPITAL_CLIENT_DOMAIN=3ed7d74e-fe48-4192-b044-86592ae9a08f
+      - BITCAPITAL_MEDIATOR_EMAIL=fabio@bitcapital.com.br
+      - BITCAPITAL_MEDIATOR_PASSWORD=fabiofabio
+      - PAGINATION_LIMIT=50
+      - LOCAL_ASSET_CODE=BRHD
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+volumes:
+  postgresql-p2p-data:
+    driver: local
