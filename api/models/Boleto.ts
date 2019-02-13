@@ -1,6 +1,7 @@
 import { validate, IsNumber, IsEnum, IsNotEmpty } from "class-validator";
-import { Column, PrimaryGeneratedColumn, Timestamp, Entity, BeforeUpdate } from "typeorm";
+import { Column, PrimaryGeneratedColumn, Timestamp, Entity, BeforeUpdate, BeforeInsert } from "typeorm";
 import { BaseError } from "ts-framework-common";
+import BitcapitalService  from "../services/BitcapitalService";
 import { AppEntity } from ".";
 import * as date from "calcudate";
 
@@ -32,6 +33,22 @@ export default class Boleto extends AppEntity {
   @IsEnum(BoletoStatus)
   @Column("enum", { enum: BoletoStatus, default: BoletoStatus.PENDING as any, nullable: false })
   status: BoletoStatus;
+
+  // @Column({ nullable: false, type: "varchar", default: this.id })
+  // codebarr: string;
+
+  // @BeforeInsert()
+  // async setCodebarr() {
+  //   try {
+  //     let bitcapital = await BitcapitalService.authenticateMediator();
+  //     bitcapital.payments().pay({
+  //       destination: this.walletId,
+  //       asset: process.env.LOCAL_ASSET_ID
+  //     } as any).
+  //   } catch(e) {
+  //     throw e;
+  //   }
+  // }
 
   @BeforeUpdate()
   verifyDueTo() {

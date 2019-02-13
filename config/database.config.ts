@@ -1,6 +1,3 @@
-import { EntityDatabaseOptions } from "ts-framework-sql";
-import { ConnectionOptions } from "typeorm";
-
 export default {
   type: "postgres",
   logging: ["error"],

@@ -1,30 +1,30 @@
 # Build Step
 FROM node:10
 
-# Build arguments
-ARG SSH_PRIVATE_KEY
-
-# Variables
 ENV PORT=3000
-ENV PACKAGE_NAME="sample"
+ENV DATABASE_HOST=localhost
+ENV DATABASE_PORT=5432
+ENV DATABASE_USER=apps
+ENV DATABASE_PASSWORD=bitcapital
+ENV BITCAPITAL_CLIENT_URL=https://testnet.btcore.app
+ENV BITCAPITAL_CLIENT_ID=p2p-lending-sample
+ENV BITCAPITAL_CLIENT_SECRET=91c29bca-3cf3-4324-ba7a-0eb933a4b01b
+ENV BITCAPITAL_CLIENT_DOMAIN=3ed7d74e-fe48-4192-b044-86592ae9a08f
+ENV BITCAPITAL_MEDIATOR_EMAIL=fabio@bitcapital.com.br
+ENV BITCAPITAL_MEDIATOR_PASSWORD=fabiofabio
+ENV PAGINATION_LIMIT=50
+ENV LOCAL_ASSET_CODE=BRHD
 
-# Prepare SSH private key
-RUN mkdir /root/.ssh/
-RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
-RUN chmod 400 /root/.ssh/id_rsa
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+RUN mkdir /home/p2p-lending-sample
 
-# Create app directory
-WORKDIR /usr/src/${PACKAGE_NAME}/
+WORKDIR /home/p2p-lending-sample
 
-# Copy only the package.json and lock file and install app dependencies
-COPY ./package.json ./yarn.lock /usr/src/${PACKAGE_NAME}/
-RUN yarn install --ignore-engines
+COPY package.json .
 
-# Copy the app source code and compile it
-COPY . /usr/src/${PACKAGE_NAME}/
-RUN yarn build
+RUN yarn install
 
-## Expose and startup
-EXPOSE ${PORT}
-CMD [ "node", "./build/start.js" ]
+COPY . .
+
+EXPOSE 3000
+
+CMD [ "yarn", "start"]
